@@ -1,0 +1,122 @@
+html, body{
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+}
+body{
+    background-color: #eee;
+    color: #333;
+}
+img{
+    max-width: 100%;
+}
+.d-flex{
+    display: flex !important;
+}
+.no-padding{
+    padding: 0 !important;
+}
+.login-image-wrapper,
+.app-wrapper,
+.loginWrapper{
+    min-height: 100vh;
+}
+.loginWrapper .login-image{
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-self: center;
+}
+.loginWrapper .forgot-form-wrapper,
+.loginWrapper .login-form-wrapper{
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+.loginWrapper .login-title{
+    font-size: 4em;
+}
+.loginWrapper .login-description{
+    margin-bottom: 40px;
+    margin-top: 20px;
+    font-weight: 400;
+    font-size: 1.5em;
+}
+.loginWrapper .loginInput{
+    width: 60%;
+}
+.loginWrapper .loginInput > input{
+    background-color: #fff;
+    padding-left: 15px;
+    height: 60px;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 30px;
+    outline: none;
+    letter-spacing: 1px;
+    border: 3px solid #333;
+    color: #333;
+    transition: all 0.1s ease-in;
+    font-size: 20px;
+}
+.loginWrapper .login-btn{
+    background-color: #333;
+    height: 60px;
+    line-height: 64px;
+    box-sizing: border-box;
+    display: block;
+    width: 60%;
+    color: #fff;
+    margin-top: 35px;
+    outline: none;
+    font-size: 22px;
+    letter-spacing: 1px;
+    font-weight: 300;
+    position: relative;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    padding: 0;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    transition: all 0.1s ease-in;
+}
+.loginWrapper .forgot-link{
+    font-size: 1.2em;
+}
+.loginWrapper .loginInput.focused > input{
+    border: 5px solid #0fa0db;
+    transform: scale(1.05);
+}
+.loginWrapper .login-btn.focused{
+    background-color: #0fa0db;
+    transform: scale(1.05);
+    font-weight: bold;
+}
+.loginWrapper .forgot-link.focused{
+    transform: scale(1.05);
+    font-weight: bold;
+    color: #0fa0db;
+}
+.loginWrapper .login-error-msg,
+.loginWrapper .forgot-password-message{
+    background-color: #ffd0c8;
+    border: 1px solid #ff1122;
+    color: #ff0000;
+    padding: 12px;
+    width: 60%;
+    margin-bottom: 20px;
+    position: relative;
+    top: -15px;
+    font-size: 20px;
+}
+.loginWrapper .forgot-password-message.success{
+    color: #69af50;
+    background-color: #bfffb3;
+    border-color: rgba(115,182,90,.5);
+}

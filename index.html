@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- Roboto font -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <!-- include CAPH 3.1.0 default package -->
+    <link href="App/assets/js/libs/caph/3.1.0/caph.min.css" rel="stylesheet" type="text/stylesheet">
+
+    <!-- include jQuery file (you can use AngularJS & jQuery in your environment) -->
+    <script src="App/assets/js/libs/caph/3.1.0/bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="App/assets/js/libs/caph/3.1.0/bower_components/angular/angular.min.js" type="text/javascript"></script>
+
+    <!-- include the CAPH Package for AngularJS -->
+    <script src="App/assets/js/libs/caph/3.1.0/caph-angular.min.js" type="text/javascript"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="App/assets/js/libs/bootstrap/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="App/assets/js/libs/bootstrap/css/bootstrap.min.css">    
+    <link rel="stylesheet" type="text/css" href="App/assets/css/main.css">
+
+    <script type="text/javascript" src="App/app.js"></script>
+
+    <!-- include angular controllers-->
+    <script type="text/javascript" src="App/controllers/loginController.js"></script>
+    <script type="text/javascript" src="App/controllers/templateController.js"></script>
+
+    <!-- include angular services-->
+    <script type="text/javascript" src="App/services/configService.js"></script>
+    <script type="text/javascript" src="App/services/globalServices.js"></script>
+    <script type="text/javascript" src="App/services/httpService.js"></script>
+    <script type="text/javascript" src="App/services/routingService.js"></script>
+    <script type="text/javascript" src="App/services/storageService.js"></script>
+    <script type="text/javascript" src="App/services/keyListenerService.js"></script>
+    <!-- include angular directives-->
+    <script type="text/javascript" src="App/directives/templateDirectives.js"></script>
+
+    <!--include APIs-->
+    <script type="text/javascript" src="$WEBAPIS/webapis/webapis.js"></script>
+</head>
+<body ng-app="scoutTVApp">
+    <div class="app-wrapper container-fluid no-padding" ng-controller="templateCtrl">
+        <login></login>
+    </div>
+</body>
+</html>

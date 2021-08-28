@@ -1,0 +1,36 @@
+<div class="loginWrapper col-xs-12 no-padding" ng-controller="loginCtrl" ng-show="showLoginTemplate">
+    <div class="col-xs-12 no-padding">
+        <div class="col-xs-5 col-xs-offset-1 login-image-wrapper d-flex">
+            <img class="login-image" src="/App/assets/images/logo_medium.png" alt="" />
+        </div>
+        <div class="col-xs-6 login-form-wrapper" ng-show="showLoginForm">
+            <h1 class="col-xs-12 login-title text-center">LOGIN</h1>
+            <span class="col-xs-12 login-description text-center">Please enter your credentials to continue</span>
+            <span class="login-error-msg text-center" ng-show="loginErrorMsg">{{errorMsgValue}}</span>
+
+            <caph-input focusable on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" value="username" max-length="150" place-holder="EMAIL OR USERNAME" class="loginInput" title="username" data-focusable-name="login-username-input" data-focusable-next-focus-down="login-password-input"></caph-input>
+            <caph-input focusable on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" value="password" max-length="150" place-holder="PASSWORD" class="loginInput" type=password title="password" data-focusable-name="login-password-input" data-focusable-next-focus-up="login-username-input"></caph-input>
+
+            <caph-button focusable on-selected="login($event, $originalEvent)" class="btn btn-secondary login-btn" title="Login" data-focusable-name="login-signin-btn">
+                <span>LOGIN</span>
+            </caph-button>
+
+            <caph-button focusable on-selected="openForgotPasswordForm($event, $originalEvent)" class="btn btn-secondary forgot-link" title="Forgot Password" data-focusable-name="login-forgot-btn">
+                <span>Forgot my password</span>
+            </caph-button>
+        </div>
+        <div class="col-xs-6 forgot-form-wrapper" ng-show="showForgotPasswordForm">
+            <h1 class="col-xs-12 login-title text-center">FORGOT MY PASSWORD</h1>
+            <span class="col-xs-12 text-center login-description">Please insert your email to reset your password.</span>
+            <span class="forgot-password-message text-center {{forgotPasswordClass}}" ng-show="forgotPasswordMessage">{{forgotPasswordMessage}}</span>
+    
+            <caph-input focusable on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="forgotemail" value="forgotemail" max-length="150" place-holder="EMAIL" class="loginInput" data-focusable-name="forgotPassword-input"></caph-input>
+    
+            <caph-button focusable on-selected="forgotPassword($event, $originalEvent)" class="btn btn-secondary login-btn" title="Forget Password" data-focusable-name="forgotPassword-form-signin">
+                <span>RESET PASSWORD</span>
+            </caph-button>
+    
+        </div>
+    </div>
+    
+</div>
