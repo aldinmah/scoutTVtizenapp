@@ -25,10 +25,13 @@
     <!-- include angular controllers-->
     <script type="text/javascript" src="App/controllers/loginController.js"></script>
     <script type="text/javascript" src="App/controllers/templateController.js"></script>
+    <script type="text/javascript" src="App/controllers/mainController.js"></script>
+    <script type="text/javascript" src="App/controllers/channelController.js"></script>
 
     <!-- include angular services-->
     <script type="text/javascript" src="App/services/configService.js"></script>
-    <script type="text/javascript" src="App/services/globalServices.js"></script>
+    <script type="text/javascript" src="App/services/globalService.js"></script>
+    <script type="text/javascript" src="App/services/timeDateService.js"></script>
     <script type="text/javascript" src="App/services/httpService.js"></script>
     <script type="text/javascript" src="App/services/routingService.js"></script>
     <script type="text/javascript" src="App/services/storageService.js"></script>
@@ -36,12 +39,17 @@
     <!-- include angular directives-->
     <script type="text/javascript" src="App/directives/templateDirectives.js"></script>
 
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
     <!--include APIs-->
     <script type="text/javascript" src="$WEBAPIS/webapis/webapis.js"></script>
 </head>
 <body ng-app="scoutTVApp">
     <div class="app-wrapper container-fluid no-padding" ng-controller="templateCtrl">
-        <login></login>
+        <ng-include ng-if="showLoader" src="'App/templates/elements/loader.html'"></ng-include>
+        <login ng-if="!removeLoginScreen"></login>
+        <main></main>
     </div>
 </body>
 </html>

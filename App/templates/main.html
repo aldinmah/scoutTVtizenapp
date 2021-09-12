@@ -1,0 +1,25 @@
+<div ng-controller="mainCtrl" ng-show="showMainTemplate">
+    <div class="col-xs-12 mainWrapper">
+        <div class="col-xs-12 headerBox">
+            <div class="col-xs-2 logo"><img src="App/assets/images/logo_small.png" alt=""></div>
+            <div class="col-xs-8 no-padding text-center modules">
+                <ng-include ng-if="showMainMenu" src="'App/templates/elements/mainMenu.html'"></ng-include>
+                <div class="menuItem" ng-if="showActiveTemplateInMenuBox">
+                    <span class="activeTemplate" >{{activeTemplate}}</span>
+                </div>
+            </div>
+            <div class="col-xs-2 currentTime text-right">{{currentTime}}</div>
+        </div>
+
+        <div class="col-xs-12 mainContentBox">
+            <div class="col-xs-12 no-padding mainBoxWrapper" ng-controller="channelCtrl">
+                <!--Home template -->
+                <ng-include ng-if="showHomeTemplate" src="'App/templates/home.html'"></ng-include>
+            </div>
+
+        </div>
+
+        <ng-include ng-if="showHelpBar" src="'App/templates/elements/helpBar.html'"></ng-include>
+
+    </div>
+</div>

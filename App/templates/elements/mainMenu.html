@@ -1,0 +1,5 @@
+<caph-list container-class="menuHorizontalList" items="item in menuItems">
+    <div class="menuItem" data-itemindex="{{$index}}" data-template="{{item.template}}" focusable on-selected="openTemplate($event)" data-focusable-group="mainMenu" data-focusable-name="menuItem{{$index}}">
+        <span class="itemTitle">{{item.name}}</span>
+    </div>
+</caph-list>

@@ -8,14 +8,14 @@
             <span class="col-xs-12 login-description text-center">Please enter your credentials to continue</span>
             <span class="login-error-msg text-center" ng-show="loginErrorMsg">{{errorMsgValue}}</span>
 
-            <caph-input focusable on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" value="username" max-length="150" place-holder="EMAIL OR USERNAME" class="loginInput" title="username" data-focusable-name="login-username-input" data-focusable-next-focus-down="login-password-input"></caph-input>
-            <caph-input focusable on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" value="password" max-length="150" place-holder="PASSWORD" class="loginInput" type=password title="password" data-focusable-name="login-password-input" data-focusable-next-focus-up="login-username-input"></caph-input>
+            <caph-input focusable data-focusable-group="loginScreen" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" value="username" max-length="150" place-holder="EMAIL OR USERNAME" class="loginInput" title="username" data-focusable-name="loginUsernameInput" data-focusable-next-focus-down="loginPasswordInput"></caph-input>
+            <caph-input focusable data-focusable-group="loginScreen" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" value="password" max-length="150" place-holder="PASSWORD" class="loginInput" type=password title="password" data-focusable-name="loginPasswordInput" data-focusable-next-focus-up="loginUsernameInput"></caph-input>
 
-            <caph-button focusable on-selected="login($event, $originalEvent)" class="btn btn-secondary login-btn" title="Login" data-focusable-name="login-signin-btn">
+            <caph-button focusable data-focusable-group="loginScreen" on-selected="login($event, $originalEvent)" class="btn btn-secondary login-btn" title="Login" data-focusable-name="loginSigninBtn">
                 <span>LOGIN</span>
             </caph-button>
 
-            <caph-button focusable on-selected="openForgotPasswordForm($event, $originalEvent)" class="btn btn-secondary forgot-link" title="Forgot Password" data-focusable-name="login-forgot-btn">
+            <caph-button focusable data-focusable-group="loginScreen" on-selected="openForgotPasswordForm($event, $originalEvent)" class="btn btn-secondary forgot-link" title="Forgot Password" data-focusable-name="loginForgotBtn">
                 <span>Forgot my password</span>
             </caph-button>
         </div>
@@ -24,11 +24,11 @@
             <span class="col-xs-12 text-center login-description">Please insert your email to reset your password.</span>
             <span class="forgot-password-message text-center {{forgotPasswordClass}}" ng-show="forgotPasswordMessage">{{forgotPasswordMessage}}</span>
     
-            <caph-input focusable on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="forgotemail" value="forgotemail" max-length="150" place-holder="EMAIL" class="loginInput" data-focusable-name="forgotPassword-input"></caph-input>
+            <caph-input focusable data-focusable-group="forgotPassword" data-focusable-name="forgotPasswordInput" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="forgotemail" value="forgotemail" max-length="150" place-holder="EMAIL" class="loginInput"></caph-input>
     
-            <caph-button focusable on-selected="forgotPassword($event, $originalEvent)" class="btn btn-secondary login-btn" title="Forget Password" data-focusable-name="forgotPassword-form-signin">
+            <div focusable data-focusable-group="forgotPassword" data-focusable-name="forgotPasswordSignin" on-selected="forgotPassword($event, $originalEvent)" class="btn btn-secondary login-btn" title="Forget Password" >
                 <span>RESET PASSWORD</span>
-            </caph-button>
+            </div>
     
         </div>
     </div>

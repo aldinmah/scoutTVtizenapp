@@ -1,8 +1,7 @@
-scoutTVApp.factory('httpService', function ($http, $rootScope, configService) {
+scoutTVApp.factory('httpService', function ($http, $rootScope, configService, globalService) {
     $http.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 
     function login(hash, uid) {
-        console.log('login api called');
         var req = {
             method: 'POST',
             url: configService.ApiCollection.LoginApiUrl,
@@ -13,7 +12,6 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService) {
             }
         }
         $http(req).then(function (response) {
-            console.log(response);
             if (response.status == 200 && response.data.data) {
                 $rootScope.$broadcast('loginSuccess', {
                     response: response.data.data
@@ -31,31 +29,30 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService) {
         });
     }
 
-    function logout(){
-      var req = {
-          method: 'GET',
-          url: configService.ApiCollection.LogoutApiUrl,
-          headers: {
-              'Token': $rootScope.userToken
-          }
-      }
-      $http(req).then(function (response) {
-        console.log(response);
-          if (response.status == 200 && response.data.data) {
-              $rootScope.$broadcast('logoutSuccess', {
+    function logout() {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.LogoutApiUrl,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('logoutSuccess', {
                     response: response.data.data
-              });
-          } else {
-              $rootScope.$broadcast('logoutError', {
+                });
+            } else {
+                $rootScope.$broadcast('logoutError', {
                     response: response.data.message
-              });
-          }
+                });
+            }
 
-      }, function (response) {
-          $rootScope.$broadcast('logoutError', {
+        }, function (response) {
+            $rootScope.$broadcast('logoutError', {
                 response: configService.generalErrorMessage
-          });
-      });
+            });
+        });
     }
 
     function checkToken(token) {
@@ -88,44 +85,171 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService) {
     }
 
     function forgotPassword(email) {
-      var req = {
-          method: 'POST',
-          url: configService.ApiCollection.ForgotPasword,
-          data: $.param({
-              'email': email
-          }),
-          headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-          }
-      }
-      console.log(email);
-      $http(req).then(function (response) {
-          console.log(response);
-          if (response.status == 200 && response.data.status) {
-              $rootScope.$broadcast('forgotPasswordCallback', {
-                  successMessage: response.data,
-                  response: response.data
-              });
-          } else {
-              $rootScope.$broadcast('forgotPasswordCallback', {
-                  response: response.data
-              });
-          }
-      }, function (response) {
-          $rootScope.$broadcast('forgotPasswordCallback', {
-              response: response.data
-          });
-      });
+        var req = {
+            method: 'POST',
+            url: configService.ApiCollection.ForgotPasword,
+            data: $.param({
+                'email': email
+            }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }
+
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.status) {
+                $rootScope.$broadcast('forgotPasswordCallback', {
+                    successMessage: response.data,
+                    response: response.data
+                });
+            } else {
+                $rootScope.$broadcast('forgotPasswordCallback', {
+                    response: response.data
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('forgotPasswordCallback', {
+                response: response.data
+            });
+        });
+    }
+
+    function getHighlighted() {
+        //debug, mock data
+        $rootScope.$broadcast('highlightedLoaded', {
+            response: globalService.MockData.highlightContent
+        });
+        return;
+
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.highlightContent,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('highlightedLoaded', {
+                    response: response.data.data
+                });
+            } else {
+                $rootScope.$broadcast('highlightedLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('highlightedLoaded', {
+                response: []
+            });
+        });
+    }
+
+    function getFavoriteChannels(skipFocus) {
+        var apiUrl = configService.ApiCollection.GetFavoriteChannels + "?config[enable_favorites]=1";
+        var req = {
+            method: 'POST',
+            url: apiUrl,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('favoriteChannelsLoaded', {
+                    response: response.data.data,
+                    focusOnFavorite: skipFocus
+                });
+            } else {
+                $rootScope.$broadcast('favoriteChannelsLoaded', {
+                    response: [],
+                    focusOnFavorite: skipFocus
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('favoriteChannelsLoaded', {
+                response: [],
+                focusOnFavorite: skipFocus
+            });
+        });
+    }
+
+    function handleFavoriteChannel(channelId, remove) {
+        var apiUrl = configService.ApiCollection.AddFavoriteChannel;
+        var isRemoveFavorite = remove != "false";
+        if (isRemoveFavorite)
+            apiUrl = configService.ApiCollection.RemoveFavoriteChannel;
+
+        var postData = new FormData();
+		postData.append('channel_id', channelId);
+        axios({
+			method: 'post',
+			url: apiUrl,
+			data: postData,
+			headers: {
+				'Token': $rootScope.userToken,
+			}
+		}).then((response)=>{
+            if (response.status == 200 && response.data.data) {
+                
+                $rootScope.$broadcast('handleFavoritesResponse', {
+                    channelId: channelId,
+                    response: response.data,
+                    error: false,
+                    isFavoriteAdded : !isRemoveFavorite
+                });
+                if(isRemoveFavorite)
+                    getFavoriteChannels(isRemoveFavorite);
+            } else {
+                $rootScope.$broadcast('handleFavoritesResponse', {
+                    error: true
+                });
+            }
+		}).catch((err)=>{
+            $rootScope.$broadcast('handleFavoritesResponse', {
+                error: true
+            });
+			return err;
+		});
+    }
+    function getChannels() {
+        var req = {
+            method: 'POST',
+            url: configService.ApiCollection.GetChannels+"?config[enable_favorites]=1",
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('channelsLoaded', {
+                    response: response.data.data
+                });
+            } else {
+                $rootScope.$broadcast('channelsLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('channelsLoaded', {
+                response: []
+            });
+        });
     }
 
     function initAPICall() {
-        
+        getHighlighted()
+        getChannels()
+        //getChannelCategories()
+        getFavoriteChannels()
     }
     return {
         login: login,
         logout: logout,
         checkToken: checkToken,
         forgotPassword: forgotPassword,
+        getChannels: getChannels,
+        handleFavoriteChannel: handleFavoriteChannel,
         initAPICall: initAPICall
     }
 });

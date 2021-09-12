@@ -1,6 +1,6 @@
-scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusController', 'configService', 'httpService', 'storageService', function ($scope, $rootScope, $timeout, focusController, configService, httpService, storageService) {
+scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusController', 'configService', 'httpService', 'storageService', 'routingService', function ($scope, $rootScope, $timeout, focusController, configService, httpService, storageService, routingService) {
 
-    console.log('init login ctrl')
+    $rootScope.removeLoginScreen = false;
     $scope.username = "aldin";
     $scope.password = "tizenapp";
     //$scope.username = "";
@@ -30,12 +30,13 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
         }
         if($scope.username.length || $scope.password.length){
             $scope.errorMsgValue="";
-            $scope.loginErrorMsg = true;
+            $scope.loginErrorMsg = false;
         }
     }
     $scope.login = function ($event, $originalEvent) {
         if($scope.preventDoubleLoad) return;
         $scope.preventDoubleLoad = true;
+
         if ($scope.username.length && $scope.password.length) {
             $rootScope.showLoader = true;
             //var uid = webapis.network.getMac();
@@ -44,22 +45,42 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
             httpService.login(hash, uid);
         }
         else{
-            console.log('here?');
             $scope.loginErrorMsg = true;
-            $scope.errorMsgValue = 'Email/Username or Password field cannot be empty!';
+            if(!$scope.password.length)
+                $scope.errorMsgValue = 'Password field cannot be empty!';
+            if(!$scope.username.length)
+                $scope.errorMsgValue = 'Username field cannot be empty!';
+            if(!$scope.password.length && !$scope.username.length)
+                $scope.errorMsgValue = 'Username or password field cannot be empty!';
         }
         $timeout(function () {
             $scope.preventDoubleLoad = false;
         }, 10);
     }
+    $scope.$on('loginSuccess', function (event, args) {
+        storageService.set("user-data", args.response);
+        $rootScope.loggedUser = args.response;
+        $rootScope.userToken = args.response.device.token;
+        $rootScope.showLoginTemplate = false;
+        $scope.loginErrorMsg = false;
+        routingService.clearTemplateStack();
+        $rootScope.$broadcast('Invoke-openHomeTemplate', {
+            skipRouteStack: false
+        });
+        $rootScope.removeLoginScreen = true;
+        httpService.initAPICall();
+    });
     $scope.$on('loginError', function (event, args) {
         $rootScope.showLoader = false;
-          if (args.response)
-              $scope.errorMsgValue = args.response;
-          else
-              $scope.errorMsgValue = translateService.errorMessages.generalError;
-  
-          $scope.loginErrorMsg = true;
+        if (args.response)
+            $scope.errorMsgValue = args.response;
+        else
+            $scope.errorMsgValue = configService.generalErrorMessage;
+
+        if($scope.errorMsgValue.length)
+            $scope.loginErrorMsg = true;
+        else
+            $scope.loginErrorMsg = false;
     })
     
     $scope.$on('forgotPasswordCallback', function (event, args){

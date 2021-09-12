@@ -1,0 +1,16 @@
+<div class="highlightedWrapper col-xs-12 no-padding">
+    <caph-list container-class="highlightedList" items="item in highlightedItems" loop="false">
+        <div class="highlightedItem" data-itemindex="{{$index}}" focusable data-focusable-name="highLightedItem{{$index}}" on-selected="openHighlighted($event, $originalEvent,{{item.id}})" on-focused="focusHorizontalItem($event, $originalEvent)">
+            <img class="itemBanner" ng-src="{{item.image}}" alt="">
+            <div class="itemInfo col-xs-7">
+                <span class="itemTitle col-xs-12">{{item.model.title}}</span>
+                <div ng-if="item.model.genres.length" class="itemGenre col-xs-12">
+                  <span class="genre-name" ng-repeat="genreItem in item.model.genres">{{genreItem.name}}, </span>
+                </div>
+                <span class="itemGenre col-xs-12">{{item.genre}}</span>
+                <span class="itemDescription col-xs-12">{{item.description}}</span>
+            </div>
+            <a href="#" class="atag"></a>
+        </div>
+    </caph-list>
+</div>
