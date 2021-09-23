@@ -1,0 +1,36 @@
+<div class="channelInfoBarWrapper" ng-show="showChannelInfoBar">
+    <div focusable data-focusable-depth="4" data-focusable-name="infoBarAnchor"></div>
+     <div class="col-xs-12 no-padding channelInfoBar">
+        <div class="col-xs-2 no-padding logo-box">
+            <div class="col-xs-12 no-padding arrow-box arrow-up-box">
+                <span class="glyphicon glyphicon-menu-up"></span>
+            </div>
+            <div class="col-xs-12 no-padding logo-up-box">
+                <div class="channel-logo col-xs-12"><img ng-src="{{currentFocusedChannel.logo_url}}" alt=""> </div>
+            </div>
+            <div class="col-xs-12 no-padding title-box">
+                <span class="channel-title col-xs-12 no-padding">{{currentFocusedChannel.title}}</span>
+            </div>
+            <div class="col-xs-12 no-padding arrow-box arrow-down-box">
+                <span class="glyphicon glyphicon-menu-down"></span>
+            </div>
+        </div>
+        <div class="arrow-left-box">
+            <span class="glyphicon glyphicon-menu-left"></span>
+        </div>
+        <div class="col-xs-9 details-box">
+            <div class="col-xs-12 no-padding details-title">{{currentEpg.title ? currentEpg.title : 'No EPG available'}}
+              <div class="pull-right add-reminder-btn-box" ng-if="showAddReminderBtn">
+                <span class="yellow-btn"></span>{{currentEpg.hasReminder ? 'Remove reminder' : 'Add reminder'}}
+              </div>
+            </div>
+            <div class="col-xs-12 no-padding details-epg-time">{{currentEpg.focusedEpgChannelItemStartEndTime ? currentEpg.focusedEpgChannelItemStartEndTime : ''}}</div>
+            <div class="col-xs-12 no-padding details-epg-desc">{{currentEpg.desc ? currentEpg.desc : 'No description available'}}</div>
+
+        </div>
+        <div class="arrow-right-box">
+            <span class="glyphicon glyphicon-menu-right"></span>
+        </div>
+
+    </div>
+</div>

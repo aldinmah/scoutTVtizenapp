@@ -2,6 +2,7 @@ html, body{
     margin: 0;
     padding: 0;
     font-size: 18px;
+    font-family: 'Roboto';
 }
 body{
     background-color: #eee;
@@ -64,7 +65,7 @@ img{
     border: 3px solid #333;
     color: #333;
     transition: all 0.1s ease-in;
-    font-size: 20px;
+    font-size: 26px;
 }
 .loginWrapper .login-btn{
     background-color: #333;
@@ -76,7 +77,7 @@ img{
     color: #fff;
     margin-top: 35px;
     outline: none;
-    font-size: 22px;
+    font-size: 26px;
     letter-spacing: 1px;
     font-weight: 300;
     position: relative;
@@ -90,7 +91,7 @@ img{
     transition: all 0.1s ease-in;
 }
 .loginWrapper .forgot-link{
-    font-size: 1.2em;
+    font-size: 24px;
 }
 .loginWrapper .loginInput.focused > input{
     border: 5px solid #0fa0db;
@@ -159,7 +160,7 @@ img{
 .loading {
 	position: fixed;
     background-color: #eee;
-	z-index: 999;
+	z-index: 99999;
 	height: 2em;
 	width: 2em;
 	overflow: visible;
@@ -171,6 +172,19 @@ img{
     margin: 0;
     width: 100%;
     height: 100%;
+}
+.player-loader.loading{
+    background-color: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.player-loader.loading .bufferInfo{
+    color: #fff;
+    font-size: 24px;
+    position: relative;
+    top: -20px;
+    left: -15px;
 }
 .loading:not(:required):after {
     content: '';
@@ -275,6 +289,9 @@ img{
     box-shadow: 0px 5px 30px -2px rgb(216, 216, 216);
     z-index: 10
 }
+.mainWrapper .headerBox{
+    z-index: 20;
+}
 .mainWrapper .headerBox .logo img {
     max-width: 100%;
     top: 7px;
@@ -285,6 +302,9 @@ img{
     height: 75px;
     position: relative;
     left: -50px;
+}
+.homeWrapper{
+    padding-top: 30px;
 }
 .mainWrapper .menuHorizontalList {
     width: 1400px;
@@ -322,7 +342,7 @@ img{
 .mainWrapper .mainContentBox {
     height: 960px;
     position: relative;
-    padding-top: 30px;
+    padding-top: 0px;
 }
 .mainWrapper .mainBoxWrapper {
     height: 900px;
@@ -386,6 +406,8 @@ img{
 }
 .mainWrapper .mainContentBox .itemsContainer .itemBannerBox {
     max-height: 215px;
+    background: #fff;
+    text-align: center;
 }
 .mainWrapper .mainContentBox .itemsContainer .focused .itemInfo,
 .mainWrapper .mainContentBox .channelList .focused .itemInfo {
@@ -451,7 +473,20 @@ img{
     margin-bottom: 20px;
     margin-top: 50px;
     padding-top: 0;
+    font-weight: 400;
 }
+.channelCategoriesWrapper{
+    margin-top: 0;
+    background: #eee;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    z-index: 20;
+}
+.channelCategoriesWrapper h2{
+    padding-left: 10px;
+    margin-top: 30px;
+}
+.mainWrapper .mainContentBox .defaultHorizontalList,
 .mainWrapper .mainContentBox .channelList {
     width: 1820px;
     height: 325px;
@@ -481,6 +516,48 @@ img{
     -moz-transition: all 0.1s;
     -webkit-transition: all 0.1s;
     transition: all 0.1s;
+}
+.mainWrapper .mainContentBox .channelCategories {
+    height: 175px
+}
+.mainWrapper .mainContentBox .channelCategories .categoryItem {
+    width: 445px;
+    height: 175px;
+    margin: 0 15px;
+    background: #fff;
+}
+.mainWrapper .mainContentBox .channelCategories .categoryItem .itemInfo {
+    position: absolute;
+    top: 35%;
+    text-align: center;
+    font-size: 38px;
+}
+.mainWrapper .mainContentBox .channelCategories .itemTitle{
+    -moz-transition: all 0.1s;
+    -webkit-transition: all 0.1s;
+    transition: all 0.1s;
+}
+.mainWrapper .mainContentBox .channelCategories .activeGenre,
+.mainWrapper .mainContentBox .channelCategories .focused{
+    box-shadow: 0px 0px 5px 4px rgb(15, 160, 219);
+}
+.mainWrapper .mainContentBox .channelCategories .focused .itemTitle {
+    transform: scale(1.25);
+    display: block;
+}
+.liveTVChannelListWrapper{
+    margin-top: 25px;
+    z-index: 10;
+}
+.mainWrapper .mainContentBox .channelList.verticalList{
+    height: 350px;
+    width: 1890px;
+}
+.mainWrapper .mainContentBox .channelList.verticalList .channelItem {
+    width: 415px;
+    height: 300px;
+    margin: 0 25px 25px 25px;
+    float: left;
 }
 .favorite-star{
     position: absolute;
@@ -522,3 +599,224 @@ img{
 .help-bar-wrapper .helpItem .roundBtn.green{background: green;}
 .help-bar-wrapper .helpItem .roundBtn.yellow{background: yellow;}
 .help-bar-wrapper .helpItem .roundBtn.blue{background: blue;}
+
+.playerTemplateWrapper .sideChannelsListVertical {
+    width: 350px;
+    height: 850px;
+}
+.playerTemplateWrapper .sideChannelVertical {
+    width: 350px;
+    height: 160px;
+    margin-bottom: 25px;
+    padding: 15px 70px 30px 70px;
+    text-align: center;
+}
+.playerTemplateWrapper .sideChannelVertical:after {
+    content: "";
+    height: 2px;
+    background: linear-gradient(to right,  rgba(255,255,255,0) 0%,rgba(147,147,147,1) 50%,rgba(255,255,255,0) 100%);
+    display: block;
+    margin-bottom: 20px;
+    margin-top: 30px;
+}
+.videoTemplateWrapper {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none
+}
+#av-player {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    opacity: 1
+}
+.verticalChannelList {
+    width: 350px;
+    height: 1080px;
+    z-index: 99999;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color:#fff;
+    opacity: 0.98;
+    padding-top: 50px
+}
+.sideChannelsListVertical {
+    height: 750px;
+    width: 400px;
+}
+.sideChannelVertical {
+    width: 100px;
+    height: 100px;
+}
+.sideChannelVertical img {
+    max-height: 100%;
+    max-width: 100%;
+    height: 100%;
+    width: 100%;
+}
+.playerTemplateWrapper .sideChannelsListVertical {
+    width: 350px;
+    height: 650px;
+}
+.playerTemplateWrapper .sideChannelVertical {
+    width: 350px;
+    height: 160px;
+    margin-bottom: 25px;
+    padding: 15px 70px 20px 70px;
+    text-align: center;
+}
+.playerTemplateWrapper .sideChannelVertical:after {
+    content: "";
+    height: 2px;
+    background: linear-gradient(to right,  rgba(255,255,255,0) 0%,rgba(147,147,147,1) 50%,rgba(255,255,255,0) 100%);
+    display: block;
+    margin-bottom: 20px;
+    margin-top: 30px;
+}
+.playerTemplateWrapper .sideChannelVertical.focused{
+    background: #ededed;
+}
+.playerTemplateWrapper .sideChannelVertical .extendCard{
+    color: #2991dd;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 36px;
+    position: absolute;
+    top: 1px;
+    height: 100%;
+    max-height: 160px;
+    width: 100%;
+    background: rgba(237, 237, 237, .95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-break: break-word;
+    right: 0;
+    z-index: -1;
+    opacity: 0;
+    line-height: 40px;
+}
+.playerTemplateWrapper .sideChannelVertical.focused .extendCard{
+    width: 550px;
+    left: 350px;
+    height: 160px;
+    opacity: 1;
+    transition: width .2s ease-out, opacity .3s ease .1s;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+.channelInfoBarWrapper {
+    height: 400px;
+    z-index: 99999;
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    background-color:rgba(255,255,255,0.9);
+    opacity: 1;
+    padding: 25px 50px;
+    width: 100%;
+    color: #333;
+}
+.channelInfoBarWrapper .arrow-box {
+    font-size: 32px;
+    text-align: center
+}
+.channelInfoBarWrapper .arrow-left-box {
+    padding: 140px 0px 30px 30px;
+    font-size: 38px;
+    width: 4%;
+    float: left
+}
+.channelInfoBarWrapper .arrow-right-box {
+    padding: 140px 0px 30px 100px;
+    right: -25px;
+    font-size: 38px;
+    width: 0%;
+    position: relative;
+}
+.channelInfoBarWrapper .arrow-up-box {
+    padding-bottom: 25px;
+    padding-top: 10px
+}
+.channelInfoBarWrapper .arrow-down-box {
+    padding-top: 10px
+}
+.channelInfoBarWrapper .channel-logo {
+    height: 150px;
+    margin-bottom: 25px
+}
+.channelInfoBarWrapper .channel-logo img {
+    width: 100%;
+    height: 100%;
+}
+.channelInfoBarWrapper .channel-title {
+    font-size: 36px;
+    text-align: center;
+}
+.channelInfoBarWrapper .details-box {
+    padding: 15px 0px 15px 20px;
+    font-size: 36px;
+}
+.channelInfoBarWrapper .details-box .details-title {
+    margin-bottom: 20px;
+    font-size: 42px;
+    font-weight: bold;
+}
+.channelInfoBarWrapper .details-box .details-epg-desc {
+    overflow: hidden;
+    height: 145px;
+    font-size: 32px;
+    font-weight: 400;
+}
+.playerTemplateWrapper .sideChannelVertical .extendCard .channelTitle{
+    display: inline-block;
+    float: left;
+    width: 100%;
+    text-align: left;
+    color: #333;
+    font-size: 34px;
+    height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-transform: none;
+}
+.playerTemplateWrapper .sideChannelVertical .extendCard .epgInfo{
+    display: inline-block;
+    float: left;
+    width: 100%;
+    text-align: left;
+    color: #333;
+    text-transform: none;
+    margin-top: 10px;
+    font-weight: 500;
+}
+.playerTemplateWrapper .sideChannelVertical .extendCard .epgInfo span{
+    display: inline-block;
+    float: left;
+    width: 100%;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 28px;
+}
+.playerTemplateWrapper .sideChannelVertical .extendCard .epgInfo .epgTime{
+    font-size: 28px;
+    color: #333;
+    text-align: right;
+    width: 175px;
+    display: inline-block;
+    float: right;
+    position: relative;
+    bottom: 0px;
+}

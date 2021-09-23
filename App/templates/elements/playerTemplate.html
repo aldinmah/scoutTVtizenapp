@@ -1,0 +1,12 @@
+<div ng-controller="playerCtrl" class="playerTemplateWrapper">
+    <div focusable data-focusable-name="playerFocusAnchor" data-focusable-depth="2" data-playerfocus="true"></div>
+
+    <div class="videoTemplateWrapper">
+        <div class="popup-wrapper player-loader loading" ng-if="showPlayerLoader">
+            <span class="bufferInfo">{{bufferPercentage?bufferPercentage:""}}</span>
+        </div>
+        <object id='av-player' type='application/avplayer'></object>
+        <ng-include src="'App/templates/channels/sideChannelList.html'"></ng-include>
+        <channel-info-bar></channel-info-bar>
+    </div>
+</div>

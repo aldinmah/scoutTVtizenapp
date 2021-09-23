@@ -1,0 +1,13 @@
+<div class="defaultListWrapper channelCategoriesWrapper col-xs-12">
+    <h2>CHANNEL CATEGORIES</h2>
+    <caph-list container-class="defaultHorizontalList channelCategories" items="item in channelCategories" loop="false" page-buffer-size="2">
+        <div class="categoryItem" data-itemindex="{{$index}}" data-itemid="{{item.id}}" focusable data-focusable-name="liveTVChannelCategoryItem{{$index}}" on-selected="filterChannelsByGenre($event, $originalEvent)">
+            <div class="itemInfo col-xs-12">
+                <div class="col-xs-12 no-padding logoTitleBox">
+                    <span class="itemTitle">{{item.name}}</span>
+                </div>
+            </div>
+            <a href="#" class="atag"></a>
+        </div>
+    </caph-list>
+</div>

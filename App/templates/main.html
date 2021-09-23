@@ -15,6 +15,16 @@
             <div class="col-xs-12 no-padding mainBoxWrapper" ng-controller="channelCtrl">
                 <!--Home template -->
                 <ng-include ng-if="showHomeTemplate" src="'App/templates/home.html'"></ng-include>
+
+                <!--LiveTV template 
+                <div ng-controller="epgCtrl">
+                    <ng-include ng-if="showLiveTVTemplate" src="'app/templates/main/LiveTV.html'"></ng-include>
+                </div>
+                -->
+                <div ng-controller="epgCtrl">
+                    <ng-include ng-if="showLiveTVTemplate" src="'App/templates/liveTV.html'"></ng-include>
+                </div>
+
             </div>
 
         </div>

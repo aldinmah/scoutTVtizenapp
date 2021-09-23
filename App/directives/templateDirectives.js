@@ -16,3 +16,15 @@ scoutTVApp.directive("home", function () {
         templateUrl: "/App/templates/home.html",
     };
 });
+scoutTVApp.directive("playerTemplate", function () {
+    return {
+        restrict: "E",
+        templateUrl: "/App/templates/elements/playerTemplate.html",
+    };
+});
+scoutTVApp.directive("channelInfoBar", function () {
+    return {
+        restrict: "E",
+        templateUrl: "/App/templates/channels/channelInfoBar.html",
+    };
+});

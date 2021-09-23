@@ -1,0 +1,24 @@
+<div class="liveTVChannelListWrapper col-xs-12">
+        <caph-list container-class="livetvchannellist channelList itemsContainer verticalList col-xs-12" items="item in filteredChannels" loop="false" direction="vertical">
+            <div class="channelItem filteredChannelItem" focusable data-focusable-name="filteredChannelItem{{$index}}" on-focused="focusVerticalList($event, $originalEvent)" on-selected="openChannel($event, $originalEvent, {{item.id}})" data-itemindex="{{$index}}">
+                <span class="hidden channelId">{{item.id}}</span>
+                <span class="hidden isFavorite">{{item.favorite}}</span>
+
+                <div class="col-xs-12 no-padding itemBannerLogoBox">
+                    <div class="favorite-star" ng-if="item.favorite"><img src="App/assets/images/favorite_star.png" alt="" /></div>
+                    <div class="itemBannerBox col-xs-12 no-padding"><img class="itemBanner" ng-src="{{item.screenshot_url}}" alt=""></div>
+                </div>
+                <div class="itemInfo col-xs-12">
+                    <div class="col-xs-12 no-padding logoTitleBox">
+                        <span class="itemTitle no-padding col-xs-12">{{item.title}}</span>
+                    </div>
+                    <span class="itemGenre no-padding col-xs-12">
+                        <span class="itemCategoryValue" ng-repeat="cat in item.channel_categories">
+                            {{cat.name}} {{$last ? '' : ', '}}
+                        </span>
+                    </span>
+                </div>
+                    
+            </div>
+        </caph-list>
+</div>

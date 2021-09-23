@@ -1,0 +1,16 @@
+<div class="verticalChannelList" ng-show="showSideChannelList">
+    <div class="sideChannelsList">
+       <caph-list container-class="sideChannelsListVertical" items="item in channels" loop="false" direction="vertical">
+           <div class="sideChannelVertical" data-itemid="{{item.id}}" data-channelitem="true" data-itemindex="{{$index}}" focusable on-focused="focusSideBarChannel({{$index}},{{item.id}})" on-selected="playChannelFromSidebar({{item.id}})" data-focusable-depth="3" data-focusable-name="sideChannelItem{{$index}}">
+               <img ng-src="{{item.logo_url}}" alt="" />
+               <div class="extendCard show">
+                    <span class="channelTitle">{{item.channel_number}}. {{item.title}}</span>
+                    <div class="epgInfo">
+                        <span class="epgTitle">{{currentSideBarEpg.title ? currentSideBarEpg.title : 'No EPG available'}}</span>
+                        <span class="epgTime">{{currentSideBarEpg.focusedEpgChannelItemStartEndTime ? currentSideBarEpg.focusedEpgChannelItemStartEndTime : ''}}</span>
+                    </div>
+                </div>
+           </div>
+       </caph-list>
+   </div>
+</div>

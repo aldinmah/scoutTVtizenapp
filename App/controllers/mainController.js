@@ -8,7 +8,7 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
         },
         {
             name: "Live TV",
-            template: "lineartv"
+            template: "liveTV"
         },
         {
             name: "TV guide",
@@ -23,7 +23,7 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
             template: "account"
         },*/
     ];
-    $scope.submenuLinearTVItems = [
+    $scope.submenuLiveTVItems = [
         {
             name: "EPG",
             template: "epg"
@@ -202,8 +202,8 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
     $rootScope.$on("refreshCurrentTime", $scope.refreshCurrentTime);
 
     $rootScope.$on("updateSubmenuItems", function (event, args) {
-        if (args.template && args.template == "lineartv")
-            $scope.submenuItems = $scope.submenuLinearTVItems;
+        if (args.template && args.template == "liveTV")
+            $scope.submenuItems = $scope.submenuLiveTVItems;
         else if (args.template && args.template == "movies")
             $scope.submenuItems = $scope.submenuMovieItems;
     });

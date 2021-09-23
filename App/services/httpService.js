@@ -1,4 +1,4 @@
-scoutTVApp.factory('httpService', function ($http, $rootScope, configService, globalService) {
+scoutTVApp.factory('httpService', function ($http, $rootScope, configService, globalService, timeDateService) {
     $http.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 
     function login(hash, uid) {
@@ -237,11 +237,72 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         });
     }
 
+    function getChannelCategories() {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.GetChannelCategories,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+
+                $rootScope.$broadcast('channelCategoriesLoaded', {
+                    response: response.data.data
+                });
+            } else {
+                $rootScope.$broadcast('channelCategoriesLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('channelCategoriesLoaded', {
+                response: []
+            });
+        });
+    }
+
+    function getEpg(filter, from, to) {
+        var apiUrl = configService.ApiCollection.Epg;
+        var fromFilter = '';
+        var toFilter = '';
+        if (from)
+            fromFilter = timeDateService.getCurrentTimeFormatedForEpg(-Math.abs(from));
+        if (to)
+            toFilter = timeDateService.getCurrentTimeFormatedForEpg(Math.abs(to));
+        if (filter)
+            apiUrl += "?filter[from]=" + fromFilter + "&filter[to]=" + toFilter;
+        var req = {
+            method: 'POST',
+            url: apiUrl,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('epgLoaded', {
+                    response: response.data.data
+                });
+            } else {
+                $rootScope.$broadcast('epgLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('epgLoaded', {
+                response: []
+            });
+        });
+    }
+
     function initAPICall() {
         getHighlighted()
         getChannels()
-        //getChannelCategories()
+        getChannelCategories()
         getFavoriteChannels()
+        getEpg(true, 1, 1);
     }
     return {
         login: login,
