@@ -584,7 +584,7 @@ img{
 .help-bar-wrapper .helpItem{
     padding: 0 20px
 }
-.help-bar-wrapper .helpItem .roundBtn{
+.roundBtn{
     width: 50px;
     height: 50px;
     background: #000;
@@ -595,10 +595,10 @@ img{
     display: inline-block;
     text-align: center;
 }
-.help-bar-wrapper .helpItem .roundBtn.red{background: red;}
-.help-bar-wrapper .helpItem .roundBtn.green{background: green;}
-.help-bar-wrapper .helpItem .roundBtn.yellow{background: yellow;}
-.help-bar-wrapper .helpItem .roundBtn.blue{background: blue;}
+.roundBtn.red{background: red;}
+.roundBtn.green{background: green;}
+.roundBtn.yellow{background: yellow;}
+.roundBtn.blue{background: #0084ff;}
 
 .playerTemplateWrapper .sideChannelsListVertical {
     width: 350px;
@@ -819,4 +819,15 @@ img{
     float: right;
     position: relative;
     bottom: 0px;
+}
+.add-reminder-btn-box{
+    font-size: 28px;
+    position: relative;
+    right: 10px;
+    top: 0;
+}
+.add-reminder-btn-box .roundBtn{
+    padding: 2px 6px 6px 8px;
+    font-size: 32px;
+    margin-right: 10px;
 }

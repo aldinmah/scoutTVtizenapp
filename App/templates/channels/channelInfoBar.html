@@ -16,12 +16,12 @@
             </div>
         </div>
         <div class="arrow-left-box">
-            <span class="glyphicon glyphicon-menu-left"></span>
+            <span class="glyphicon glyphicon-menu-left" ng-if="!disableLeftArrow"></span>
         </div>
         <div class="col-xs-9 details-box">
             <div class="col-xs-12 no-padding details-title">{{currentEpg.title ? currentEpg.title : 'No EPG available'}}
               <div class="pull-right add-reminder-btn-box" ng-if="showAddReminderBtn">
-                <span class="yellow-btn"></span>{{currentEpg.hasReminder ? 'Remove reminder' : 'Add reminder'}}
+                <span class="roundBtn blue">D</span>{{currentEpg.hasReminder ? 'Remove reminder' : 'Add reminder'}}
               </div>
             </div>
             <div class="col-xs-12 no-padding details-epg-time">{{currentEpg.focusedEpgChannelItemStartEndTime ? currentEpg.focusedEpgChannelItemStartEndTime : ''}}</div>
@@ -29,7 +29,7 @@
 
         </div>
         <div class="arrow-right-box">
-            <span class="glyphicon glyphicon-menu-right"></span>
+            <span class="glyphicon glyphicon-menu-right" ng-if="!disableRightArrow"></span>
         </div>
 
     </div>

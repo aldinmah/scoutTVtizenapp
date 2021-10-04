@@ -1,7 +1,6 @@
 scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focusController', 'routingService', function ($scope, $rootScope, $timeout, focusController, routingService) {
 
   $rootScope.channels = [];
-  $rootScope.currentSideBarFocusedChannel = {};
   $scope.filteredChannels = [];
   $scope.favoriteChannels = [];
   $scope.channelCategoriesRaw = [];
@@ -147,10 +146,11 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
     $scope.openChannel(null,null,channelID)
   }
   $rootScope.focusSideBarChannel = function (index, channelID) {
-    $rootScope.focusedSideChannelName = 'sideChannelItem'+index;
+    $rootScope.focusedSideChannelName = 'sideChannelItem'+index
     let channel = $rootScope.getChannelByChannelID(channelID)
     if(channel){
-      $rootScope.currentSideBarFocusedChannel = channel
+      //$rootScope.currentFocusedChannel = channel;
+      $rootScope.currentSideBarFocusedChannel = channel;
       $rootScope.$broadcast('updateCurrentSideBarEpg');
     }
   }

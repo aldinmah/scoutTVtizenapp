@@ -3,6 +3,7 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
     /*Channels*/
     $rootScope.currentPlayingChannel = {};
     $rootScope.currentFocusedChannel = {};
+    $rootScope.currentSideBarFocusedChannel = {};
     $rootScope.channelTemplate = true;
     $rootScope.avPlayerObj = document.getElementById("av-player");
     $rootScope.currentPlayingVod = {};
@@ -64,12 +65,14 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
         console.log('prepareAsync errorCallback!');
         console.log(error);
     }
-    $rootScope.playChannel = function(channel) {
+    $rootScope.playChannel = function(channel, sideBarChannel) {
       $scope.bufferPercentage = 0;
       $rootScope.showPlayerLoader = true;
       $rootScope.channelTemplate = true;
       $rootScope.currentPlayingChannel = channel;
       $rootScope.currentFocusedChannel = channel;
+      if(sideBarChannel)
+        $rootScope.currentSideBarFocusedChannel = channel;
       var channelUrl = channel.primary_url;
       
       try {

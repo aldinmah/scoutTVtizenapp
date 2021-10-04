@@ -45,7 +45,17 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
       
       focusController.focus('forgotPasswordInput');
 
-  };
+    };
+    $rootScope.hidePlayerTemplate = function () {
+        $(".videoTemplateWrapper").hide();
+        $("#av-player").hide();
+        $rootScope.showPlayerTemplate = false;
+        if(webapis.avplay.getState() == "READY" || webapis.avplay.getState() == "PLAYING" || webapis.avplay.getState() == "PAUSED")
+        {
+          webapis.avplay.suspend();
+          webapis.avplay.close();
+        }
+    };
     $scope.hideAllTemplates = function () {
         $rootScope.showMainTemplate = false;
         $rootScope.showHomeTemplate = false;
@@ -59,6 +69,8 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.loadLiveTVChannelList = false;
         $rootScope.showSideChannelList = false;
         $rootScope.showChannelInfoBar = false;
+        if($rootScope.showPlayerTemplate)
+          $rootScope.hidePlayerTemplate();
     }
     $scope.openTemplate = function ($event, $originalEvent) {
         var selectedTemplate = $($event.currentTarget).data("template");
@@ -97,6 +109,10 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             case 40:
                 $scope.openChannelInfoBar(true);
                 break;
+            case 10009:
+            case 8:
+                routingService.openPreviousTemplate();
+                break;
             default: break
         }
     };
@@ -119,7 +135,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
 
         var dataFocusableGroup = focusController.getCurrentGroup()
         var dataFocusableDepth = focusController.getCurrentDepth()
-        console.log('focus group = ',dataFocusableGroup);
+
         console.log('focus depth = ',focusController.getCurrentDepth());
         console.log('activeItem.data("playerfocus") = ',activeItem.data("playerfocus"));
 
@@ -129,10 +145,32 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         }
         //Sidebar focus
         else if(dataFocusableDepth==3){
-            console.log('sidebar channels, key code : ',event.keyCode);
             switch (event.keyCode) {
                 case 39:
-                    $rootScope.playChannel($rootScope.currentSideBarFocusedChannel)
+                    $rootScope.playChannel($rootScope.currentSideBarFocusedChannel, true)
+                    break;
+                default:
+                    break;
+            }
+        }
+        //Channel info box focus
+        else if(dataFocusableDepth==4){
+            switch (event.keyCode) {
+                case 39:
+                    $rootScope.$broadcast('updateNextEpgData');
+                    break;
+                case 37:
+                    $rootScope.$broadcast('updatePreviousEpgData');
+                    break;
+                case 38:
+                case 427:
+                    $rootScope.$broadcast('selectedEpgChannelDown');
+                    $rootScope.playChannel($rootScope.currentFocusedChannel);
+                    break;
+                case 40:
+                case 428:
+                    $rootScope.$broadcast('selectedEpgChannelUp');
+                    $rootScope.playChannel($rootScope.currentFocusedChannel);
                     break;
                 default:
                     break;
@@ -166,14 +204,17 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                   focusController.focus("playerFocusAnchor");
                   break;
                 }
-                if($rootScope.showChannelInfoBar){
+                else if($rootScope.showChannelInfoBar){
                     $rootScope.showChannelInfoBar = false;
                     focusController.setDepth(2)
                     focusController.focus("playerFocusAnchor");
                     break;
-                  }
+                }
+                else if(dataFocusableDepth!=2){
+                    routingService.openPreviousTemplate();
+                }
+                break;
             case tizen.tvinputdevice.getKey('ColorF0Red').code:
-                console.log("red pressed");
                 if(activeItem.data("channelitem")){
                     httpService.handleFavoriteChannel($(activeItem).find(".channelId").html(),$(activeItem).find(".isFavorite").html());
                 }
@@ -206,6 +247,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     });
     
     $scope.openHomeTemplate = function (skipRouteStack) {
+        console.log('openHomeTemplate');
         if (!skipRouteStack)
             routingService.addRouteToStack("openHomeTemplate");
         focusController.setDepth(0);
@@ -216,7 +258,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.activeTemplate = 'Home';
         $rootScope.showLoader = false;
         $rootScope.$broadcast('refreshCurrentTime');
-        
+        $rootScope.hidePlayerTemplate();
         if($rootScope.favoriteChannelsExist){
             $rootScope.loadFavoriteChannelsView = true;
         }
@@ -228,6 +270,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         }, 50);
         $timeout(function () {
             focusController.focus("menuItem0");
+            $('.mainContentBox').css({top:0})
         }, 150);
     };
     $scope.$on('Invoke-openHomeTemplate', function (event, args) {
@@ -238,6 +281,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     });
 
     $scope.openLiveTVTemplate = function (skipRouteStack) {
+        console.log('openLiveTVTemplate');
         if (!skipRouteStack)
             routingService.addRouteToStack("openLiveTVTemplate");
         $scope.hideAllTemplates();
@@ -249,10 +293,11 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.showLiveTVTemplateItems = true;
         $rootScope.loadLiveTVChannelList = true;
         $rootScope.activeTemplate = 'LiveTV';
-
+        $rootScope.hidePlayerTemplate();
         focusController.setDepth(0);
         $rootScope.currentFocusDepth = 0;
         $rootScope.$broadcast('loadLiveTVtemplateInit');
+        $('.mainContentBox').css({top:0})
         $timeout(function () {
             focusController.focus("liveTVChannelCategoryItem0");
         }, 1000);
@@ -295,10 +340,12 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.showSideChannelList = true;
         $timeout(function () {
             focusController.setDepth(3);
-            if($rootScope.focusedSideChannelName)
+            if($rootScope.focusedSideChannelName){
                 focusController.focus($rootScope.focusedSideChannelName)
-            else
+            }
+            else{
                 focusController.focus("sideChannelItem0")
+            }
 
         }, 200);
     };

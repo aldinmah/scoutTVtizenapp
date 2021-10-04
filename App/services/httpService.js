@@ -302,7 +302,7 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         getChannels()
         getChannelCategories()
         getFavoriteChannels()
-        getEpg(true, 1, 1);
+        getEpg(true, 1, 2);
     }
     return {
         login: login,

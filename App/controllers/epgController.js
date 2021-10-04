@@ -30,7 +30,8 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
     $rootScope.catchupStart = 0;
     $rootScope.catchupDuration = 0;
     $rootScope.remindersInterval = 0;
-  
+    $rootScope.disableRightArrow = false;
+    $rootScope.disableLeftArrow = false;
     $rootScope.epgReminders = [];
   
     $rootScope.$on('epgLoaded', function(event, args) {
@@ -156,10 +157,12 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
     $rootScope.$on('updateNextEpgData', function(event, args) {
       if ($rootScope.currentFocusedChannel.epg_channel_id) {
         if ($rootScope.currentEpgChannelIndex > -1 && $rootScope.currentEpgProgrammeIndex < $scope.epg[$rootScope.currentEpgChannelIndex].programmes.length - 1) {
+          if($rootScope.disableLeftArrow)
+            $rootScope.disableLeftArrow = false;
+          $rootScope.disableRightArrow = false;
           $rootScope.currentEpgProgrammeIndex++;
           var currentDate = new Date();
           var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-  
           var startTime = timeDateService.createSafariDate(epgProgramme.start);
           var endTime = timeDateService.createSafariDate(epgProgramme.stop);
           var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
@@ -170,19 +173,7 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
           $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
   
           $rootScope.showAddReminderBtn = false;
-          if($rootScope.currentFocusedChannel.catchup_enabled & startTime < currentDate){
-            if(endTime>currentDate){
-              $rootScope.showCatchUpIcon = false;
-            }
-            else {
-              $rootScope.showCatchUpIcon = true;
-              $rootScope.catchupStart = parseInt(startTime.getTime()/1000);
-              $rootScope.catchupDuration = parseInt((endTime.getTime()-startTime.getTime())/1000);
-            }
-          }
-          else {
-  
-            $rootScope.showCatchUpIcon = false;
+          if(startTime > currentDate){
             $rootScope.showAddReminderBtn = true;
             if(endTime < currentDate)
               $rootScope.showAddReminderBtn = false;
@@ -195,43 +186,18 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
             }
           }
         }
-      } else {
-        var now = new Date();
-        var startDate = timeDateService.addHoursToDate(new Date(), $rootScope.epgCatchupHoursPast);
-        var endDate = timeDateService.addHoursToDate(startDate, 1) //Add one hour to start time
-        $rootScope.showAddReminderBtn = false;
-        if($rootScope.epgCatchupHoursPast==0){
-          $rootScope.showCatchUpIcon = false;
-          $rootScope.catchupStartEndTime = timeDateService.formatDateToHHMM(startDate, true) + " - " + timeDateService.formatDateToHHMM(endDate, true)
+        else{
+          $rootScope.disableRightArrow = true;
         }
-        else if ($rootScope.currentFocusedChannel.catchup_enabled && startDate < now && ($rootScope.currentFocusedChannel.catchup_duration_total >= $rootScope.epgCatchupHoursPast * 60)) {
-          if(endTime>currentDate){
-            $rootScope.showCatchUpIcon = false;
-          }
-          else{
-            $rootScope.epgCatchupHoursPast++;
-            startDate = timeDateService.addHoursToDate(new Date(), $rootScope.epgCatchupHoursPast);
-            endDate = timeDateService.addHoursToDate(startDate, 1) //Add one hour to start time
-            $rootScope.catchupStartEndTime = timeDateService.formatDateToHHMM(startDate, true) + " - " + timeDateService.formatDateToHHMM(endDate, true)
-  
-            $rootScope.catchupStart = parseInt(startDate.getTime()/1000);
-            $rootScope.catchupDuration = parseInt((endDate.getTime()-startDate.getTime())/1000);
-  
-            if($rootScope.epgCatchupHoursPast!=0)
-              $rootScope.showCatchUpIcon = true;
-            else
-              $rootScope.showCatchUpIcon = false;
-          }
-        }
-  
       }
-  
     });
     $rootScope.$on('updatePreviousEpgData', function(event, args) {
       if ($rootScope.currentFocusedChannel.epg_channel_id) {
         if ($rootScope.currentEpgChannelIndex > -1 && $rootScope.currentEpgProgrammeIndex > 0) {
           $rootScope.currentEpgProgrammeIndex--;
-  
+          $rootScope.disableLeftArrow = false;
+          if($rootScope.disableRightArrow)
+            $rootScope.disableRightArrow = false;
           var currentDate = new Date();
           var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
           var startTime = timeDateService.createSafariDate(epgProgramme.start);
@@ -247,62 +213,41 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
           var minutesInPast = parseInt(((currentDate.getTime()-startTime.getTime())/1000)/60);
   
           $rootScope.showAddReminderBtn = false;
-          if($rootScope.currentFocusedChannel.catchup_enabled && startTime < currentDate && minutesInPast < $rootScope.currentFocusedChannel.catchup_duration_total){
-            if(endTime>currentDate){
-              $rootScope.showCatchUpIcon = false;
-            }
-            else{
-              $rootScope.showCatchUpIcon = true;
-              $rootScope.catchupStart = parseInt(startTime.getTime()/1000);
-              $rootScope.catchupDuration = parseInt((endTime.getTime()-startTime.getTime())/1000);
-            }
-          }
-          else {
+          if(startTime > currentDate){
             $rootScope.showCatchUpIcon = false;
             $rootScope.showAddReminderBtn = true;
             if(endTime < currentDate)
               $rootScope.showAddReminderBtn = false;
             else if(startTime < currentDate)
               $rootScope.showAddReminderBtn = false;
-  
           }
+        }
+        else{
+          $rootScope.disableLeftArrow = true;
         }
       } else {
         $rootScope.showAddReminderBtn = false;
-        if ($rootScope.currentFocusedChannel.catchup_enabled && ($rootScope.currentFocusedChannel.catchup_duration_total > Math.abs($rootScope.epgCatchupHoursPast * 60))) {
-          $rootScope.epgCatchupHoursPast--;
-          var startDate = timeDateService.addHoursToDate(new Date(), $rootScope.epgCatchupHoursPast);
-          var endDate = timeDateService.addHoursToDate(startDate, 1) //Add one hour to start time
-          $rootScope.catchupStartEndTime = timeDateService.formatDateToHHMM(startDate, true) + " - " + timeDateService.formatDateToHHMM(endDate, true);
-          $rootScope.showCatchUpIcon = true;
-  
-          $rootScope.catchupStart = parseInt(startDate.getTime()/1000);
-          $rootScope.catchupDuration = parseInt((endDate.getTime()-startDate.getTime())/1000);
-        }
       }
-  
     });
     $rootScope.$on('selectedEpgChannelDown', function(event, args) {
-      $scope.currentFocusedChannelIndex = $scope.getCurrenFocusedChannelIndex();
+      $rootScope.currentFocusedChannelIndex = $rootScope.getCurrenFocusedChannelIndex();
       if ($rootScope.currentFocusedChannelIndex > 0) {
         $rootScope.currentFocusedChannelIndex--;
         $rootScope.currentFocusedChannel = $rootScope.channels[$rootScope.currentFocusedChannelIndex];
-        $rootScope.epgCatchupHoursPast = 0;
         $rootScope.$broadcast('updateCurrentEpg');
   
       }
     });
     $rootScope.$on('selectedEpgChannelUp', function(event, args) {
-      $scope.currentFocusedChannelIndex = $scope.getCurrenFocusedChannelIndex();
+      $rootScope.currentFocusedChannelIndex = $rootScope.getCurrenFocusedChannelIndex();
       if ($rootScope.currentFocusedChannelIndex < $rootScope.channels.length - 1) {
         $rootScope.currentFocusedChannelIndex++;
         $rootScope.currentFocusedChannel = $rootScope.channels[$rootScope.currentFocusedChannelIndex];
-        $rootScope.epgCatchupHoursPast = 0;
         $rootScope.$broadcast('updateCurrentEpg');
       }
     });
   
-    $scope.getCurrenFocusedChannelIndex = function() {
+    $rootScope.getCurrenFocusedChannelIndex = function() {
       for (var i = 0; i < $rootScope.channels.length; i++) {
         if ($rootScope.channels[i].id == $rootScope.currentFocusedChannel.id)
           return i;

@@ -28,7 +28,9 @@ scoutTVApp.service('routingService', function ($rootScope) {
     }
 
     function openPreviousTemplate() {
+        console.log(routeStack);
         var lastTemplate = getStackItem();
+        console.log(lastTemplate);
         if((lastTemplate == "openLoginScreen" && $rootScope.loginWelcomeTemplate) || (lastTemplate == "openHomeTemplate" && $rootScope.showHomeTemplate)){
           $rootScope.$broadcast("triggerOpenExitAppPopup");
           return false;
