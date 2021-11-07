@@ -24,6 +24,13 @@ scoutTVApp.factory('timeDateService', function(globalService) {
             var curr_year = d.getFullYear();
             return curr_day + ", " + curr_date + "." + curr_month + "." + curr_year;
         },
+        getFormatedMonthddyyyy : function(d) {
+            var curr_day = globalService.DaysOfWeekShort[d.getDay()];
+            var curr_date = d.getDate();
+            var curr_month = globalService.MonthNames[d.getMonth()];
+            var curr_year = d.getFullYear();
+            return curr_month + " " + curr_date + ", " + curr_year;
+        },
         getCurrentTimeFormatedForEpg : function(addDays) {
             var d = new Date();
             if(addDays)

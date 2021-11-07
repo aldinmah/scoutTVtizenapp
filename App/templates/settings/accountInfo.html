@@ -1,0 +1,51 @@
+<div class="col-xs-12 accountInfoWrapper">
+    <h1 class="col-xs-12">Account Information</h1>
+    <div class="col-xs-6 leftColumn">
+        <div class="regularInputWrapper">
+            <span class="inputLabel">First name</span>
+            <caph-input focusable data-focusable-next-focus-down="field3" data-focusable-next-focus-right="field2" data-focusable-name="field1" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="f_name" value="accountData.profile.first_name" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Email</span>
+            <caph-input focusable data-focusable-next-focus-down="field5" data-focusable-next-focus-right="field4" data-focusable-name="field3" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="email" value="accountData.profile.email" max-length="150" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message">{{emailErrorMessage}}</span>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Age</span>
+            <caph-input focusable data-focusable-next-focus-down="field7" data-focusable-next-focus-right="field6" data-focusable-name="field5" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="age" value="accountData.profile.age" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Parental PIN</span>
+            <caph-input focusable data-focusable-next-focus-down="accountcancelbtn" data-focusable-next-focus-right="field8" data-focusable-name="field7" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="pin" value="accountData.profile.pin" max-length="5" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message">{{parental_pinErrorMessage}}</span>
+        </div>
+    </div>
+    <div class="col-xs-6 rightColumn">
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Last name</span>
+            <caph-input focusable data-focusable-next-focus-down="field4" data-focusable-next-focus-left="field1" data-focusable-name="field2" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="l_name" value="accountData.profile.last_name" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Username</span>
+            <caph-input focusable data-focusable-next-focus-down="field6" data-focusable-next-focus-left="field3" data-focusable-name="field4" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="username" value="accountData.profile.username" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper radioInputWrapper {{accountData.profile.sex?'femaleSelected':'maleSelected'}}">
+            <span class="col-xs-12 no-padding inputLabel">Gender</span>
+            <caph-radiobutton group="gender" focusable data-focusable-next-focus-down="field8" data-focusable-next-focus-left="field5" data-focusable-name="field6" title="genre" on-focused="selectRadioBtn(false)" on-selected="selectRadioBtn(false)" title="gender" class="radioInput {{!accountData.profile.sex?'focused':''}}" value="Male"><span class="male circle"></span>Male</caph-radiobutton>
+            <caph-radiobutton group="gender" focusable data-focusable-next-focus-down="field8" data-focusable-name="field6b"  title="genre" on-focused="selectRadioBtn(true)" on-selected="selectRadioBtn(true)" title="gender" class="radioInput {{accountData.profile.sex?'focused':''}}" value="Female"><span class="female circle"></span>Female</caph-radiobutton>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Purchase PIN</span>
+            <caph-input focusable data-focusable-next-focus-down="accountsavebtn" data-focusable-next-focus-left="field7" data-focusable-name="field8" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="purchase_pin" value="accountData.account.purchase_pin" max-length="6" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message purchase_pin">{{purchase_pinErrorMessage}}</span>
+        </div>
+    </div>
+    <div class="col-xs-12 buttonsWrapper text-right">
+        <caph-button focusable data-focusable-name="accountcancelbtn" on-selected="resetAccountInfoChanges($event, $originalEvent)" class="btn btn-secondary cancel-btn">
+            <span>Cancel</span>
+        </caph-button>
+        <caph-button focusable data-focusable-name="accountsavebtn" on-selected="saveAccountInfoChanges($event, $originalEvent)" class="btn btn-secondary save-btn {{(purchase_pinErrorMessage.length>0 || parental_pinErrorMessage.length>0 || emailErrorMessage.length>0)?'disabled':''}}">
+            <span>Save</span>
+        </caph-button>
+    </div>
+</div>

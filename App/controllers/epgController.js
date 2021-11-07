@@ -1,549 +1,589 @@
-scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval', 'focusController', 'routingService', 'timeDateService', 'configService', function($scope, $rootScope, $timeout, $interval, focusController, routingService, timeDateService, configService) {
+scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval', 'focusController', 'routingService', 'timeDateService', 'configService', 'httpService', function($scope, $rootScope, $timeout, $interval, focusController, routingService, timeDateService, configService, httpService) {
 
-    $scope.epg = [];
-    $scope.epgRawData = [];
-    $scope.numberOfChannels = 8;
-    $scope.timelineDaysPast = 1;
-    $scope.timelineDaysFuture = 1;
-    $scope.timeline = [];
-    $scope.currentTimelineTime = "";
-    $scope.pixelSizeInMinutes = 11.2;
-    $scope.focusedEpgItem = {};
-    $scope.focusedEpgChannelTitle = "";
-    $scope.focusedEpgChannelLogo = "";
-    $scope.focusedEpgChannelItemStart = 0;
-    $scope.focusedEpgChannelItemStop = 0;
-    $scope.focusedEpgChannelItemDesc = "";
-    $scope.focusedEpgChannelItemTitle = "";
-    $scope.channelRow = 0;
-    $scope.channelRowItemIndex = -1;
-    $rootScope.catchupStartEndTime = "";
-    $scope.focusedNoEpgStartEndTime = "";
+  $scope.epg = [];
+  $scope.epgPaged = [];
+  $scope.currentEpgPage = 1;
+  $scope.epgPageSize = 4;
+  $scope.epgTotalPages = 1;
+  $scope.epgRawData = [];
+  $scope.numberOfChannels = 8;
+  $scope.timelineDaysPast = 7;
+  $scope.timelineDaysFuture = 1;
+  $scope.timeline = [];
+  $scope.currentTimelineTime = "";
+  $scope.pixelSizeInMinutes = 11.2;
+  $scope.focusedEpgItem = {};
+  $scope.focusedEpgChannelTitle = "";
+  $scope.focusedEpgChannelLogo = "";
+  $scope.focusedEpgChannelItemStart = 0;
+  $scope.focusedEpgChannelItemStop = 0;
+  $scope.focusedEpgChannelItemDesc = "";
+  $scope.focusedEpgChannelItemTitle = "";
+  $scope.channelRow = 0;
+  $scope.channelRowItemIndex = -1;
+  $rootScope.catchupStartEndTime = "";
+  $scope.focusedNoEpgStartEndTime = "";
+  $rootScope.currentEpg = {};
+  $rootScope.currentSideBarEpg = {};
+  $rootScope.currentEpgChannelIndex = 0;
+  $rootScope.currentEpgProgrammeIndex = 0;
+  $rootScope.currentFocusedChannelIndex = 0;
+  $scope.fullViewEpgSelectedChannel = {programmes:[]};
+  $rootScope.epgCatchupHoursPast = 0;
+  $rootScope.showCatchUpIcon = false;
+  $rootScope.catchupStart = 0;
+  $rootScope.catchupDuration = 0;
+  $rootScope.remindersInterval = 0;
+  $rootScope.disableRightArrow = false;
+  $rootScope.disableLeftArrow = false;
+  $rootScope.epgReminders = [];
+  $scope.showEpgProgrammeList = false;
+  $scope.currentEpgProgrammeIndexFullEPGList = 0;
+  $scope.activeEpgDate = new Date();
+
+  $rootScope.$on('epgLoaded', function(event, args) {
+    $scope.epgRawData = args.response;
+    $rootScope.loadEpgView = true;
+    $scope.prePareEpgData();
+  });
+  $scope.updateEpgItemByEpgChannelId = function(response, deleteReminder){
+    for (var i = 0; i < $scope.fullViewEpgSelectedChannel.programmes.length; i++) {
+      if($scope.fullViewEpgSelectedChannel.programmes[i].id==response.epg_programme_id){
+        if(deleteReminder){
+          $scope.fullViewEpgSelectedChannel.programmes[i].hasReminder = false;
+          $scope.fullViewEpgSelectedChannel.programmes[i].reminderData = null;
+          $rootScope.currentEpg = $scope.fullViewEpgSelectedChannel.programmes[i];
+        }
+        else{
+          $scope.fullViewEpgSelectedChannel.programmes[i].hasReminder = true;
+          $scope.fullViewEpgSelectedChannel.programmes[i].reminderData = response;
+          $rootScope.currentEpg = $scope.fullViewEpgSelectedChannel.programmes[i];
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+  $scope.checkIfReminderIsAdded = function(stringId){
+    if($rootScope.epgReminders.length>0){
+      for (var i = 0; i < $rootScope.epgReminders.length; i++) {
+        if($rootScope.epgReminders[i].string_id == stringId){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  $rootScope.$on('epgReminderAdded', function(event, args) {
+    if(args.response.epg_channel_id && args.response.epg_programme_id){
+      $scope.updateEpgItemByEpgChannelId(args.response);
+    }
+  });
+  $rootScope.$on('epgReminderDeleted', function(event, args) {
+    if(args.response.epg_channel_id && args.response.epg_programme_id){
+      $scope.updateEpgItemByEpgChannelId(args.response,true);
+    }
+  });
+  $rootScope.getChannelByEpgChannelId = function(epgchannelid){
+    var channel = null;
+    for(var i=0;i<$rootScope.channels.length;i++){
+      if($rootScope.channels[i].epg_channel_id == epgchannelid)
+        channel = $rootScope.channels[i];
+    }
+    return channel;
+  }
+  $rootScope.checkReminders = function(){
+    if(!$rootScope.showEpgReminderPopup)
+    {
+      for(var i=0;i<$rootScope.epgReminders.length;i++){
+        if($rootScope.epgReminders[i].activate_time){
+          var date = new Date($rootScope.epgReminders[i].activate_time)
+          var dateWithoutTimezone = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
+          if(dateWithoutTimezone < new Date()){
+            console.log('activate popup epg');
+            $rootScope.activeEpgReminder = $rootScope.epgReminders[i];
+            $rootScope.activeEpgReminder.startFormated = timeDateService.formatDateToHHMM($rootScope.epgReminders[i].epg_programme.start)
+            $rootScope.activeEpgReminder.channel = $rootScope.getChannelByEpgChannelId($rootScope.epgReminders[i].epg_channel_id);
+            $rootScope.openEpgReminderPopup();
+          }
+        }
+      }
+    }
+  };
+
+  $rootScope.$on('epgRemindersLoaded', function(event, args) {
+    console.log('epg reminders loaded')
+    console.log(args.response)
+    $rootScope.epgReminders = args.response;
+    $rootScope.checkReminders();
+
+    if($rootScope.remindersInterval)
+      $interval.cancel($rootScope.remindersInterval);
+    $rootScope.remindersInterval = $interval(function () {
+      $rootScope.checkReminders();
+    }, configService.checkRemindersInterval);
+  });
+  $rootScope.$on('updateCurrentEpg', function(event, args) {
+    $rootScope.showAddReminderBtn = false;
+    var currentDate = new Date();
+    for (var i = 0; i < $scope.epg.length; i++) {
+
+      if ($scope.epg[i].epg_channel_id == $rootScope.currentFocusedChannel.epg_channel_id) {
+        for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
+
+          var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
+          var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
+          if (startTime < currentDate && currentDate < endTime) {
+            $rootScope.currentEpg = $scope.epg[i].programmes[j];
+            $rootScope.currentEpgChannelIndex = i;
+            $rootScope.currentEpgProgrammeIndex = j;
+            $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
+            return false;
+          } else
+            $rootScope.currentEpgChannelIndex = -1;
+        }
+      }
+    }
     $rootScope.currentEpg = {};
-    $rootScope.currentSideBarEpg = {};
-    $rootScope.currentEpgChannelIndex = 0;
-    $rootScope.currentEpgProgrammeIndex = 0;
-    $rootScope.currentFocusedChannelIndex = 0;
-    $rootScope.currentFocusedEpgElement = null;
-    $rootScope.epgCatchupHoursPast = 0;
-    $rootScope.showCatchUpIcon = false;
-    $rootScope.catchupStart = 0;
-    $rootScope.catchupDuration = 0;
-    $rootScope.remindersInterval = 0;
-    $rootScope.disableRightArrow = false;
-    $rootScope.disableLeftArrow = false;
-    $rootScope.epgReminders = [];
+    $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = "";
+
+    var startDate = new Date();
+    var endDate = timeDateService.addHoursToDate(startDate, 1) //Add one hour to start time
+    $rootScope.catchupStartEndTime = timeDateService.formatDateToHHMM(startDate, true) + " - " + timeDateService.formatDateToHHMM(endDate, true)
+
+  });
   
-    $rootScope.$on('epgLoaded', function(event, args) {
-      $scope.epgRawData = args.response;
-      $rootScope.loadEpgView = true;
-      $scope.prePareEpgData();
-      $scope.createTimeline();
-    });
-    $scope.updateEpgItemByEpgChannelId = function(response, deleteReminder){
-      for (var i = 0; i < $scope.epg.length; i++) {
-        if ($scope.epg[i].epg_channel_id == response.epg_channel_id) {
-          for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
-            if($scope.epg[i].programmes[j].id==response.epg_programme_id){
-              if(deleteReminder){
-                $scope.epg[i].programmes[j].hasReminder = false;
-                $scope.epg[i].programmes[j].reminderData = null;
-                $rootScope.currentEpg = $scope.epg[i].programmes[j];
-              }
-              else{
-                $scope.epg[i].programmes[j].hasReminder = true;
-                $scope.epg[i].programmes[j].reminderData = response;
-                $rootScope.currentEpg = $scope.epg[i].programmes[j];
-              }
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    }
-    $scope.checkIfReminderIsAdded = function(stringId){
-      if($rootScope.epgReminders.length>0){
-        for (var i = 0; i < $rootScope.epgReminders.length; i++) {
-          if($rootScope.epgReminders[i].string_id == stringId)
-            return true;
-        }
-      }
-      return false;
-    }
-    $rootScope.$on('epgReminderAdded', function(event, args) {
-      if(args.response.epg_channel_id && args.response.epg_programme_id){
-        $scope.updateEpgItemByEpgChannelId(args.response);
-      }
-    });
-    $rootScope.$on('epgReminderDeleted', function(event, args) {
-      if(args.response.epg_channel_id && args.response.epg_programme_id){
-        $scope.updateEpgItemByEpgChannelId(args.response,true);
-      }
-    });
-    $rootScope.checkReminders = function(){
-      if(!$rootScope.showEpgReminderPopup)
-      {
-        for(var i=0;i<$rootScope.epgReminders.length;i++){
-          if($rootScope.epgReminders[i].activate_time){
-            var date = new Date($rootScope.epgReminders[i].activate_time)
-            var dateWithoutTimezone = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
-            if(dateWithoutTimezone < new Date()){
-              $rootScope.activeEpgReminder = $rootScope.epgReminders[i];
-              $rootScope.activeEpgReminder.startFormated = timeDateService.formatDateToHHMM($rootScope.epgReminders[i].epg_programme.start)
-              $rootScope.activeEpgReminder.channel = $rootScope.getChannelByEpgChannelId($rootScope.epgReminders[i].epg_channel_id);
-              $scope.openEpgReminderPopup();
-            }
-          }
-        }
-      }
-    };
-  
-    $rootScope.$on('epgRemindersLoaded', function(event, args) {
-      $rootScope.epgReminders = args.response;
-      if($rootScope.remindersInterval)
-        $interval.cancel($rootScope.remindersInterval);
-      $rootScope.remindersInterval = $interval(function () {
-        $rootScope.checkReminders();
-      }, configService.checkRemindersInterval);
-    });
-    $rootScope.$on('updateCurrentEpg', function(event, args) {
-      $rootScope.showAddReminderBtn = false;
+  $rootScope.$on('updateCurrentSideBarEpg', function(event, args) {
       var currentDate = new Date();
       for (var i = 0; i < $scope.epg.length; i++) {
-  
-        if ($scope.epg[i].epg_channel_id == $rootScope.currentFocusedChannel.epg_channel_id) {
+        if ($scope.epg[i].epg_channel_id == $rootScope.currentSideBarFocusedChannel.epg_channel_id) {
           for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
-  
             var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
             var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
             if (startTime < currentDate && currentDate < endTime) {
-              $rootScope.currentEpg = $scope.epg[i].programmes[j];
-              $rootScope.currentEpgChannelIndex = i;
-              $rootScope.currentEpgProgrammeIndex = j;
-              $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
+              $rootScope.currentSideBarEpg = $scope.epg[i].programmes[j];
+              $rootScope.currentSideBarEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
               return false;
-            } else
-              $rootScope.currentEpgChannelIndex = -1;
-          }
-        }
-      }
-      $rootScope.currentEpg = {};
-      $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = "";
-  
-      var startDate = new Date();
-      var endDate = timeDateService.addHoursToDate(startDate, 1) //Add one hour to start time
-      $rootScope.catchupStartEndTime = timeDateService.formatDateToHHMM(startDate, true) + " - " + timeDateService.formatDateToHHMM(endDate, true)
-  
-    });
-    $rootScope.$on('updateCurrentSideBarEpg', function(event, args) {
-        var currentDate = new Date();
-        for (var i = 0; i < $scope.epg.length; i++) {
-          if ($scope.epg[i].epg_channel_id == $rootScope.currentSideBarFocusedChannel.epg_channel_id) {
-            for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
-              var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
-              var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
-              if (startTime < currentDate && currentDate < endTime) {
-                $rootScope.currentSideBarEpg = $scope.epg[i].programmes[j];
-                $rootScope.currentSideBarEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
-                return false;
-              }
             }
           }
         }
-        $rootScope.currentSideBarEpg = {};
-        $rootScope.currentSideBarEpg.focusedEpgChannelItemStartEndTime = "";
-    });
-    $rootScope.$on('updateNextEpgData', function(event, args) {
-      if ($rootScope.currentFocusedChannel.epg_channel_id) {
-        if ($rootScope.currentEpgChannelIndex > -1 && $rootScope.currentEpgProgrammeIndex < $scope.epg[$rootScope.currentEpgChannelIndex].programmes.length - 1) {
-          if($rootScope.disableLeftArrow)
-            $rootScope.disableLeftArrow = false;
-          $rootScope.disableRightArrow = false;
-          $rootScope.currentEpgProgrammeIndex++;
-          var currentDate = new Date();
-          var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-          var startTime = timeDateService.createSafariDate(epgProgramme.start);
-          var endTime = timeDateService.createSafariDate(epgProgramme.stop);
-          var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
-          var endTimeWithOffset = new Date(endTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
-  
-          $rootScope.currentEpg = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-          $rootScope.currentEpg.hasReminder = false;
-          $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
-  
-          $rootScope.showAddReminderBtn = false;
-          if(startTime > currentDate){
-            $rootScope.showAddReminderBtn = true;
-            if(endTime < currentDate)
-              $rootScope.showAddReminderBtn = false;
-            else if(startTime < currentDate)
-              $rootScope.showAddReminderBtn = false;
-            else if($scope.checkIfReminderIsAdded($rootScope.currentEpg.string_id)){
-              $rootScope.currentEpg.hasReminder = true;
-              $rootScope.currentEpg.reminder_string_id = $rootScope.currentEpg.string_id;
-  
-            }
-          }
-        }
-        else{
-          $rootScope.disableRightArrow = true;
-        }
       }
-    });
-    $rootScope.$on('updatePreviousEpgData', function(event, args) {
-      if ($rootScope.currentFocusedChannel.epg_channel_id) {
-        if ($rootScope.currentEpgChannelIndex > -1 && $rootScope.currentEpgProgrammeIndex > 0) {
-          $rootScope.currentEpgProgrammeIndex--;
+      $rootScope.currentSideBarEpg = {};
+      $rootScope.currentSideBarEpg.focusedEpgChannelItemStartEndTime = "";
+  });
+  $rootScope.$on('updateNextEpgData', function(event, args) {
+    if ($rootScope.currentFocusedChannel.epg_channel_id) {
+      if ($rootScope.currentEpgChannelIndex > -1 && $rootScope.currentEpgProgrammeIndex < $scope.epg[$rootScope.currentEpgChannelIndex].programmes.length - 1) {
+        if($rootScope.disableLeftArrow)
           $rootScope.disableLeftArrow = false;
-          if($rootScope.disableRightArrow)
-            $rootScope.disableRightArrow = false;
-          var currentDate = new Date();
-          var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-          var startTime = timeDateService.createSafariDate(epgProgramme.start);
-          var endTime = timeDateService.createSafariDate(epgProgramme.stop);
-  
-          var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
-          var endTimeWithOffset = new Date(endTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
-  
-          $rootScope.currentEpg = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-  
-          $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
-  
-          var minutesInPast = parseInt(((currentDate.getTime()-startTime.getTime())/1000)/60);
-  
-          $rootScope.showAddReminderBtn = false;
-          if(startTime > currentDate){
-            $rootScope.showCatchUpIcon = false;
-            $rootScope.showAddReminderBtn = true;
-            if(endTime < currentDate)
-              $rootScope.showAddReminderBtn = false;
-            else if(startTime < currentDate)
-              $rootScope.showAddReminderBtn = false;
-          }
-        }
-        else{
-          $rootScope.disableLeftArrow = true;
-        }
-      } else {
-        $rootScope.showAddReminderBtn = false;
-      }
-    });
-    $rootScope.$on('selectedEpgChannelDown', function(event, args) {
-      $rootScope.currentFocusedChannelIndex = $rootScope.getCurrenFocusedChannelIndex();
-      if ($rootScope.currentFocusedChannelIndex > 0) {
-        $rootScope.currentFocusedChannelIndex--;
-        $rootScope.currentFocusedChannel = $rootScope.channels[$rootScope.currentFocusedChannelIndex];
-        $rootScope.$broadcast('updateCurrentEpg');
-  
-      }
-    });
-    $rootScope.$on('selectedEpgChannelUp', function(event, args) {
-      $rootScope.currentFocusedChannelIndex = $rootScope.getCurrenFocusedChannelIndex();
-      if ($rootScope.currentFocusedChannelIndex < $rootScope.channels.length - 1) {
-        $rootScope.currentFocusedChannelIndex++;
-        $rootScope.currentFocusedChannel = $rootScope.channels[$rootScope.currentFocusedChannelIndex];
-        $rootScope.$broadcast('updateCurrentEpg');
-      }
-    });
-  
-    $rootScope.getCurrenFocusedChannelIndex = function() {
-      for (var i = 0; i < $rootScope.channels.length; i++) {
-        if ($rootScope.channels[i].id == $rootScope.currentFocusedChannel.id)
-          return i;
-      }
-    };
-    $rootScope.$on('showEpgTemplateRender', function(event, args) {
-      $scope.generateEpgItemsHTML();
-    });
-    $rootScope.$on('triggerRightKey', function(event, args) {
-      $scope.handleRightKey(args.myelem);
-    });
-    $rootScope.$on('triggerLeftKey', function(event, args) {
-      $scope.handleLeftKey(args.myelem);
-    });
-    $scope.prePareEpgData = function() {
-      var epgData = [];
-      for (var i = 0; i < $scope.epgRawData.length; i++) {
-        var epgProgrammes = [];
-        if ($scope.epgRawData[i].hasOwnProperty("programmes") && $scope.epgRawData[i].programmes) {
-          for (var j = 0; j < $scope.epgRawData[i].programmes.length; j++) {
-  
-            var d = new Date();
-            d.setDate(d.getDate() - $scope.timelineDaysPast);
-  
-            var start = new Date($scope.epgRawData[i].programmes[j].start_timestamp * 1000);
-  
-            if (start.getTime() > d.getTime()) {
-              epgProgrammes.push($scope.epgRawData[i].programmes[j]);
-            }
-  
-            //check for reminder
-            $scope.epgRawData[i].programmes[j].hasReminder = $scope.checkIfReminderIsAdded($scope.epgRawData[i].programmes[j].string_id)
-          }
-        }
-        epgData.push($scope.epgRawData[i]);
-        epgData[i].programmes = epgProgrammes;
-      }
-      $scope.epg = epgData;
-    };
-    $scope.createTimelineItem = function(lastTimeLineDate) {
-      var hours = lastTimeLineDate.getHours();
-      if (hours < 10)
-        hours = "0" + hours;
-  
-      var minutes = lastTimeLineDate.getMinutes();
-      if (minutes < 10)
-        minutes = "0" + minutes;
-  
-      return hours + ":" + minutes;
-  
-    };
-    $scope.createTimeline = function() {
-      var lastTimeLineDate = new Date();
-      var endTimeLineDate = new Date();
-      lastTimeLineDate.setDate(lastTimeLineDate.getDate() - Math.abs($scope.timelineDaysPast));
-      endTimeLineDate.setDate(endTimeLineDate.getDate() + Math.abs($scope.timelineDaysFuture));
-  
-      var timeline = [];
-  
-      timeline.push({
-        text: $scope.createTimelineItem(lastTimeLineDate)
-      });
-      do {
-        lastTimeLineDate.setMinutes(lastTimeLineDate.getMinutes() + 30);
-        timeline.push({
-          text: $scope.createTimelineItem(lastTimeLineDate)
-        });
-      }
-      while (lastTimeLineDate < endTimeLineDate);
-  
-      $scope.timeline = timeline;
-    };
-    $scope.getWidthFromDuration = function(start, stop) {
-  
-      var startDate = new Date(start * 1000);
-      var stopDate = new Date(stop * 1000);
-  
-      var diffMs = Math.abs(stopDate - startDate);
-      var diffMins = Math.floor((diffMs / 1000) / 60); // minutes
-  
-      return parseFloat(diffMins * $scope.pixelSizeInMinutes).toFixed(2);
-    };
-    $scope.moveItemToTimelineStart = function(start) {
-      var d = new Date();
-      var start = new Date(start * 1000);
-      start = start.getTime() + d.getTimezoneOffset() * 60 * 1000;
-  
-      //start = start*1000;
-      var startDate = new Date(start);
-      var epgBeginDate = new Date();
-      epgBeginDate.setDate(epgBeginDate.getDate() - Math.abs($scope.timelineDaysPast));
-      var diffMs = Math.abs(startDate - epgBeginDate);
-      var minutes = Math.floor((diffMs / 1000) / 60); // minutes
-      var numPixels = parseInt(minutes * $scope.pixelSizeInMinutes);
-      return numPixels;
-    };
-    $rootScope.getChannelByEpgChannelId = function(epgchannelid){
-      var channel = null;
-      for(var i=0;i<$rootScope.channels.length;i++){
-        if($rootScope.channels[i].epg_channel_id == epgchannelid)
-          channel = $rootScope.channels[i];
-      }
-      return channel;
-    }
-    $scope.generateEpgItemsHTML = function() {
-      var html = '';
-      var now = new Date();
-      for (var i = 0; i < $scope.epg.length; i++) {
-        html += '<div class="col-xs-12 no-padding epgRow">';
-        var channel = $rootScope.getChannelByEpgChannelId($scope.epg[i].epg_channel_id);
-        $scope.epg[i].channelData = false;
-        if(channel){
-          $scope.epg[i].channelData = channel;
-          if(i==2)
-            $scope.epg[i].channelData.catchup_enabled = true;
-        }
-        if ($scope.epg[i].hasOwnProperty("programmes")) {
-  
-          for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
-            html += '<a href="javascript:void(0)" class="epgItem reminder-update-'+$scope.epg[i].programmes[j].id+'" data-catchupenabled="'+$scope.epg[i].channelData.catchup_enabled+'" data-reminderstringid="'+$scope.epg[i].programmes[j].string_id+'" data-hasreminder="'+$scope.epg[i].programmes[j].hasReminder+'" data-epgprogrammeid="'+$scope.epg[i].programmes[j].id+'" data-epgchannelid="'+$scope.epg[i].epg_channel_id+'" id="epgItem-' + i + '-' + j + '" style="width:' + $scope.getWidthFromDuration($scope.epg[i].programmes[j].start_timestamp, $scope.epg[i].programmes[j].stop_timestamp) + 'px;left:' + $scope.moveItemToTimelineStart($scope.epg[i].programmes[j].start_timestamp) + 'px" data-channeltitle="' + $scope.epg[i].programmes[j].title + '" data-channellogo="' + $scope.epg[i].logo + '" data-epgitemtitle="' + $scope.epg[i].programmes[j].title + '" data-epgitemdesc="' + $scope.epg[i].programmes[j].desc + '" data-hasreminder="'+$scope.epg[i].programmes[j].hasReminder+'" data-epgitemstart="' + $scope.epg[i].programmes[j].start + '" data-epgitemstop="' + $scope.epg[i].programmes[j].stop + '"><span>' + $scope.epg[i].programmes[j].title + '</span><span class="glyphicon glyphicon-bell reminder-notice-'+$scope.epg[i].programmes[j].hasReminder+'"></span>';
-  
-            if(timeDateService.createSafariDate($scope.epg[i].programmes[j].start) < now){
-              html += '<div class="glyphicon glyphicon-repeat red epg-catchup '+$scope.epg[i].channelData.catchup_enabled+'"></div>';
-            }
-  
-            html += '</a>';
-          }
-          html += '</div>';
-        }
-        $(".epgItemsWrapper").html(html);
-  
-        $timeout(function() {
-          $scope.markCurrentTimeline();
-        }, 100);
-      }
-    };
-  
-    $scope.markCurrentTimeline = function() {
-      var currentDate = new Date();
-      var epgBeginDate = new Date();
-      var currentTime = currentDate.getTime();
-      $scope.currentTimelineTime = $scope.createTimelineItem(currentDate);
-  
-      epgBeginDate.setDate(epgBeginDate.getDate() - Math.abs($scope.timelineDaysPast));
-  
-      var diffMs = Math.abs(currentDate - epgBeginDate);
-      var minutes = Math.floor((diffMs / 1000) / 60); // minutes
-  
-      var numPixels = parseInt(minutes * 11.18);
-      $(".epgData").scrollLeft(numPixels);
-      $(".current-epg-line").animate({
-        left: numPixels + 50
-      }, 100);
-  
-    }
-    $scope.isElementVisible = function(elem, container, move) {
-      var docViewTop = container.offset().top;
-      var docViewBottom = docViewTop + container.height();
-  
-      var headerTop = $(".epgDetailsBox").offset().top;
-      var headerBottom = headerTop + $(".epgDetailsBox").height() + 20;
-  
-      var elemTop = $(elem).offset().top;
-      var elemBottom = elemTop + $(elem).height();
-  
-      if (move) {
-        if (elemTop > docViewTop && elemBottom > docViewBottom) {
-          $scope.lastBottomScrollValue = (docViewBottom - elemBottom) - 100;
-          container.animate({
-            top: $scope.lastBottomScrollValue + 'px'
-          }, 100)
-        } else {
-          container.animate({
-            top: '0px'
-          }, 100)
-        }
-        return;
-      }
-      if (elemTop < headerBottom) {
-        return false;
-      }
-      return (elemBottom <= docViewBottom) && (elemTop >= docViewTop);
-    }
-    $scope.blurEpgItem = function() {
-      $(".focusedEpg").removeClass("focusedEpg");
-      $scope.focusedEpgChannelItemTitle = "";
-      $scope.focusedEpgChannelItemDesc = "";
-      $scope.focusedEpgChannelItemStart = "";
-      $scope.focusedEpgChannelItemStop = "";
-      $scope.focusedEpgChannelItemStartEndTime = "";
-    };
-  
-    $scope.updateEpgItemDetails = function(element) {
-      $scope.blurEpgItem();
-  
-      $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex).focus();
-      var focusedEpgItem = $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex);
-      focusedEpgItem.addClass("focusedEpg");
-      var startTime = timeDateService.createSafariDate(focusedEpgItem.data("epgitemstart"));
-  
-      if(startTime<new Date()){
-        $rootScope.addReminderBtn = false;
-        $rootScope.removeReminderBtn = false;
-        var catchupEnabled = focusedEpgItem.data("catchupenabled")
-        if(catchupEnabled)
-          $rootScope.playCatchup = true;
-        else
-          $rootScope.playCatchup = false;
-      }else{
-        if(focusedEpgItem.data("hasreminder")){
-          $rootScope.addReminderBtn = false;
-          $rootScope.removeReminderBtn = true;
-        }else {
-          $rootScope.addReminderBtn = true;
-          $rootScope.removeReminderBtn = false;
-        }
-        $rootScope.playCatchup = false;
-      }
-      $rootScope.showHelpBar = true;
-  
-      $rootScope.currentFocusedEpgElement = focusedEpgItem;
-      var start = focusedEpgItem.data("epgitemstart");
-      var stop = focusedEpgItem.data("epgitemstop");
-      $scope.focusedEpgChannelItemTitle = focusedEpgItem.data("epgitemtitle");
-      $scope.focusedEpgChannelItemDesc = focusedEpgItem.data("epgitemdesc");
-  
-      if (start)
-        $scope.focusedEpgChannelItemStart = timeDateService.formatDateToHHMM(start);
-      if (stop)
-        $scope.focusedEpgChannelItemStop = timeDateService.formatDateToHHMM(stop);
-      $scope.focusedEpgChannelItemStartEndTime = $scope.focusedEpgChannelItemStart + " - " + $scope.focusedEpgChannelItemStop;
-      $timeout(function() {
-        focusController.focus("chitem" + $scope.channelRow);
-        $("#chitem" + $scope.channelRow).focus();
-      }, 500);
-    };
-    $scope.focusOnCurrenEpgItem = function() {
-  
-      if ($scope.epg[$scope.channelRow].programmes.length > 0) {
+        $rootScope.disableRightArrow = false;
+        $rootScope.currentEpgProgrammeIndex++;
         var currentDate = new Date();
-        for (var j = 0; j < $scope.epg[$scope.channelRow].programmes.length; j++) {
-          var start = new Date($scope.epg[$scope.channelRow].programmes[j].start_timestamp * 1000);
-          start = start.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
-          var stop = new Date($scope.epg[$scope.channelRow].programmes[j].stop_timestamp * 1000);
-          stop = stop.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
-          if (start > currentDate.getTime() && currentDate.getTime() < stop) {
-            $scope.channelRowItemIndex = j;
-            return false;
+        var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
+        var startTime = timeDateService.createSafariDate(epgProgramme.start);
+        var endTime = timeDateService.createSafariDate(epgProgramme.stop);
+        var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
+        var endTimeWithOffset = new Date(endTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
+
+        $rootScope.currentEpg = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
+        $rootScope.currentEpg.hasReminder = false;
+        $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
+
+        $rootScope.showAddReminderBtn = false;
+        if(startTime > currentDate){
+          $rootScope.showAddReminderBtn = true;
+          if(endTime < currentDate)
+            $rootScope.showAddReminderBtn = false;
+          else if(startTime < currentDate)
+            $rootScope.showAddReminderBtn = false;
+          else if($scope.checkIfReminderIsAdded($rootScope.currentEpg.string_id)){
+            $rootScope.currentEpg.hasReminder = true;
+            $rootScope.currentEpg.reminder_string_id = $rootScope.currentEpg.string_id;
+
           }
         }
       }
-  
-    };
-    $scope.handleRightKey = function(element) {
-      if ($scope.channelRowItemIndex == -1) {
-        $scope.focusOnCurrenEpgItem();
-        $scope.updateEpgItemDetails(element);
-        return false;
+      else{
+        $rootScope.disableRightArrow = true;
       }
-      $scope.channelRowItemIndex++;
-      $scope.updateEpgItemDetails(element);
     }
-    $scope.handleLeftKey = function(element) {
-      $scope.channelRowItemIndex--;
-      $scope.updateEpgItemDetails(element);
+  });
+  $rootScope.$on('updatePreviousEpgData', function(event, args) {
+    if ($rootScope.currentFocusedChannel.epg_channel_id) {
+      if ($rootScope.currentEpgChannelIndex > -1 && $rootScope.currentEpgProgrammeIndex > 0) {
+        $rootScope.currentEpgProgrammeIndex--;
+        $rootScope.disableLeftArrow = false;
+        if($rootScope.disableRightArrow)
+          $rootScope.disableRightArrow = false;
+        var currentDate = new Date();
+        var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
+        var startTime = timeDateService.createSafariDate(epgProgramme.start);
+        var endTime = timeDateService.createSafariDate(epgProgramme.stop);
+
+        var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
+        var endTimeWithOffset = new Date(endTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
+
+        $rootScope.currentEpg = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
+
+        $rootScope.currentEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
+
+        var minutesInPast = parseInt(((currentDate.getTime()-startTime.getTime())/1000)/60);
+
+        $rootScope.showAddReminderBtn = false;
+        if(startTime > currentDate){
+          $rootScope.showCatchUpIcon = false;
+          $rootScope.showAddReminderBtn = true;
+          if(endTime < currentDate)
+            $rootScope.showAddReminderBtn = false;
+          else if(startTime < currentDate)
+            $rootScope.showAddReminderBtn = false;
+        }
+      }
+      else{
+        $rootScope.disableLeftArrow = true;
+      }
+    } else {
+      $rootScope.showAddReminderBtn = false;
     }
-    $scope.focusEpgChannelTitle = function($event, $originalEvent) {
-      var focusedItem = $($event.currentTarget);
-      $scope.blurEpgItem();
-      $scope.channelRowItemIndex = -1;
-      $scope.channelRow = $($event.currentTarget).data("channelrow");
-      $scope.focusedEpgChannelTitle = $($event.currentTarget).data("channeltitle");
-      $scope.focusedEpgChannelLogo = $($event.currentTarget).data("channellogo");
-      var container = $(".epgChannelList");
-      if (!$scope.isElementVisible(focusedItem, container)) {
-        $scope.isElementVisible(focusedItem, container, true);
-        $scope.isElementVisible(focusedItem, $(".epgSlide"), true)
+  });
+  $rootScope.$on('selectedEpgChannelDown', function(event, args) {
+    $rootScope.currentFocusedChannelIndex = $rootScope.getCurrenFocusedChannelIndex();
+    if ($rootScope.currentFocusedChannelIndex > 0) {
+      $rootScope.currentFocusedChannelIndex--;
+      $rootScope.currentFocusedChannel = $rootScope.channels[$rootScope.currentFocusedChannelIndex];
+      $rootScope.$broadcast('updateCurrentEpg');
+
+    }
+  });
+  $rootScope.$on('selectedEpgChannelUp', function(event, args) {
+    $rootScope.currentFocusedChannelIndex = $rootScope.getCurrenFocusedChannelIndex();
+    if ($rootScope.currentFocusedChannelIndex < $rootScope.channels.length - 1) {
+      $rootScope.currentFocusedChannelIndex++;
+      $rootScope.currentFocusedChannel = $rootScope.channels[$rootScope.currentFocusedChannelIndex];
+      $rootScope.$broadcast('updateCurrentEpg');
+    }
+  });
+
+  $rootScope.getCurrenFocusedChannelIndex = function() {
+    for (var i = 0; i < $rootScope.channels.length; i++) {
+      if ($rootScope.channels[i].id == $rootScope.currentFocusedChannel.id)
+        return i;
+    }
+  };
+  $rootScope.$on('showEpgTemplateRender', function(event, args) {
+    //$scope.generateEpgItemsHTML();
+  });
+  $rootScope.$on('triggerRightKey', function(event, args) {
+    $scope.handleRightKey(args.myelem);
+  });
+  $rootScope.$on('triggerLeftKey', function(event, args) {
+    $scope.handleLeftKey(args.myelem);
+  });
+  $rootScope.updateCurrentEpgProgrammes = function(){
+    var currentDate = new Date();
+    for (var i = 0; i < $scope.epg.length; i++) {
+      $scope.epg[i].currentEPGProgramme = {};
+      $scope.epg[i].currentEPGProgramme.focusedEpgChannelItemStartEndTime = "";
+      
+      for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
+        var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
+        var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
+        if (startTime < currentDate && currentDate < endTime) {
+          $scope.epg[i].currentEPGProgramme = $scope.epg[i].programmes[j];
+          $scope.epg[i].currentEPGProgramme.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
+        }
       }
-  
-      $rootScope.showHelpBar = false;
-      // focusedItem.focus();
-    };
-    $scope.focusEpgChannelItem = function($event, $originalEvent, epgItem) {
-      var focusedItem = $($event.currentTarget);
-      $scope.focusedEpgChannelTitle = $($event.currentTarget).data("channeltitle");
-      $scope.focusedEpgChannelLogo = $($event.currentTarget).data("channellogo");
-      $scope.focusedEpgItem = epgItem;
-  
-      /*Check for vertical scroll*/
-      var container = $(".epgSlide");
-      if (!$scope.isElementVisible(focusedItem, container)) {
-        $scope.isElementVisible(focusedItem, container, true);
-        $scope.isElementVisible(focusedItem, $(".epgChannelList"), true)
+      
+    }
+  };
+  $scope.prePareEpgData = function() {
+    var epgData = [];
+    for (var i = 0; i < $scope.epgRawData.length; i++) {
+      var epgProgrammes = [];
+      if ($scope.epgRawData[i].hasOwnProperty("programmes") && $scope.epgRawData[i].programmes) {
+        for (var j = 0; j < $scope.epgRawData[i].programmes.length; j++) {
+          epgProgrammes.push($scope.epgRawData[i].programmes[j]);
+          //$scope.epgRawData[i].programmes[j].hasReminder = $scope.checkIfReminderIsAdded($scope.epgRawData[i].programmes[j].string_id)
+        }
       }
-      /*Check for horizontal scroll*/
-      focusedItem.focus();
-    };
-  }]);
+      epgData.push($scope.epgRawData[i]);
+      epgData[i].programmes = epgProgrammes;
+    }
+    
+    $scope.epg = epgData;
+    $scope.epgPagedData = $scope.epg.slice(0,$scope.epgPageSize)
+    $scope.epgTotalPages = parseInt(Math.ceil($scope.epg / $scope.epgPageSize))
+
+    $rootScope.updateCurrentEpgProgrammes()
+  };
   
+  $scope.getWidthFromDuration = function(start, stop) {
+
+    var startDate = new Date(start * 1000);
+    var stopDate = new Date(stop * 1000);
+
+    var diffMs = Math.abs(stopDate - startDate);
+    var diffMins = Math.floor((diffMs / 1000) / 60); // minutes
+
+    return parseFloat(diffMins * $scope.pixelSizeInMinutes).toFixed(2);
+  };
+  
+
+  $scope.isElementVisible = function(elem, container, move) {
+    var docViewTop = container.offset().top;
+    var docViewBottom = docViewTop + container.height();
+
+    var headerTop = $(".epgDetailsBox").offset().top;
+    var headerBottom = headerTop + $(".epgDetailsBox").height() + 20;
+
+    var elemTop = $(elem).offset().top;
+    var elemBottom = elemTop + $(elem).height();
+
+    if (move) {
+      if (elemTop > docViewTop && elemBottom > docViewBottom) {
+        $scope.lastBottomScrollValue = (docViewBottom - elemBottom) - 100;
+        container.animate({
+          top: $scope.lastBottomScrollValue + 'px'
+        }, 100)
+      } else {
+        container.animate({
+          top: '0px'
+        }, 100)
+      }
+      return;
+    }
+    if (elemTop < headerBottom) {
+      return false;
+    }
+    return (elemBottom <= docViewBottom) && (elemTop >= docViewTop);
+  }
+
+  $scope.updateEpgItemDetails = function(element) {
+    console.log('updateEpgItemDetails needs to be removed??? BUT IT IS CALLED!!');
+    $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex).focus();
+    var focusedEpgItem = $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex);
+    focusedEpgItem.addClass("focusedEpg");
+    var startTime = timeDateService.createSafariDate(focusedEpgItem.data("epgitemstart"));
+
+    if(startTime<new Date()){
+      $rootScope.addReminderBtn = false;
+      $rootScope.removeReminderBtn = false;
+      var catchupEnabled = focusedEpgItem.data("catchupenabled")
+      if(catchupEnabled)
+        $rootScope.playCatchup = true;
+      else
+        $rootScope.playCatchup = false;
+    }else{
+      if(focusedEpgItem.data("hasreminder")){
+        $rootScope.addReminderBtn = false;
+        $rootScope.removeReminderBtn = true;
+      }else {
+        $rootScope.addReminderBtn = true;
+        $rootScope.removeReminderBtn = false;
+      }
+      $rootScope.playCatchup = false;
+    }
+    $rootScope.showHelpBar = true;
+
+    $scope.currentFocusedEpgElement = focusedEpgItem;
+    var start = focusedEpgItem.data("epgitemstart");
+    var stop = focusedEpgItem.data("epgitemstop");
+    $scope.focusedEpgChannelItemTitle = focusedEpgItem.data("epgitemtitle");
+    $scope.focusedEpgChannelItemDesc = focusedEpgItem.data("epgitemdesc");
+
+    if (start)
+      $scope.focusedEpgChannelItemStart = timeDateService.formatDateToHHMM(start);
+    if (stop)
+      $scope.focusedEpgChannelItemStop = timeDateService.formatDateToHHMM(stop);
+    $scope.focusedEpgChannelItemStartEndTime = $scope.focusedEpgChannelItemStart + " - " + $scope.focusedEpgChannelItemStop;
+
+    $timeout(function() {
+      focusController.focus("chitem" + $scope.channelRow);
+      $("#chitem" + $scope.channelRow).focus();
+    }, 500);
+  };
+  $scope.focusOnCurrenEpgItem = function() {
+    if ($scope.epg[$scope.channelRow].programmes.length > 0) {
+      var currentDate = new Date();
+      for (var j = 0; j < $scope.epg[$scope.channelRow].programmes.length; j++) {
+        var start = new Date($scope.epg[$scope.channelRow].programmes[j].start_timestamp * 1000);
+        start = start.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
+        var stop = new Date($scope.epg[$scope.channelRow].programmes[j].stop_timestamp * 1000);
+        stop = stop.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
+        if (start > currentDate.getTime() && currentDate.getTime() < stop) {
+          $scope.channelRowItemIndex = j;
+          return false;
+        }
+      }
+    }
+
+  };
+  $scope.prepareTodayEpgList = function (epgProgrammeList) {
+    var nowTimestamp = new Date();
+    var offsetValue = nowTimestamp.getTimezoneOffset() * 60;
+    nowTimestamp = parseInt(nowTimestamp.getTime()/1000) - offsetValue;
+
+    var programmeList = []
+    for (var i = 0; i < epgProgrammeList.length; i++) {
+        epgProgrammeList[i].startEndTimeString = ""
+        epgProgrammeList[i].hasReminder = false;
+        if($scope.checkIfReminderIsAdded(epgProgrammeList[i].string_id))
+          epgProgrammeList[i].hasReminder = true;
+
+        if (epgProgrammeList[i].start && epgProgrammeList[i].stop)
+          epgProgrammeList[i].startEndTimeString = timeDateService.formatDateToHHMM(epgProgrammeList[i].start) + " - " + timeDateService.formatDateToHHMM(epgProgrammeList[i].stop)
+        
+        if(epgProgrammeList[i].stop_timestamp>nowTimestamp && epgProgrammeList[i].start_timestamp>nowTimestamp){
+          epgProgrammeList[i].showReminderButton = true;
+        }
+        programmeList.push(epgProgrammeList[i]);
+    }
+    return programmeList;
+  }
+  $scope.getProgrammesForSelectedDate = function (epgProgrammeList) {
+    var nowTimestamp = new Date($scope.activeEpgDate.getTime());
+    var offsetValue = nowTimestamp.getTimezoneOffset() * 60;
+    var startTimestamp = new Date($scope.activeEpgDate.getTime());
+    var endTimestamp = new Date($scope.activeEpgDate.getTime());
+
+    startTimestamp.setUTCHours(0,0,0,0);
+    endTimestamp.setUTCHours(23,59,59,999);
+
+    startTimestamp = parseInt(startTimestamp.getTime()/1000)
+    endTimestamp = parseInt(endTimestamp.getTime()/1000)
+    nowTimestamp = parseInt(nowTimestamp.getTime()/1000) - offsetValue
+
+    var programmeList = []
+    for (var i = 0; i < epgProgrammeList.length; i++) {
+      
+      if (epgProgrammeList[i].start_timestamp>startTimestamp && epgProgrammeList[i].stop_timestamp<endTimestamp) {
+        epgProgrammeList[i].hasReminder = false;
+        if($scope.checkIfReminderIsAdded(epgProgrammeList[i].string_id))
+          epgProgrammeList[i].hasReminder = true;
+
+        epgProgrammeList[i].startEndTimeString = ""
+        if (epgProgrammeList[i].start && epgProgrammeList[i].stop)
+          epgProgrammeList[i].startEndTimeString = timeDateService.formatDateToHHMM(epgProgrammeList[i].start) + " - " + timeDateService.formatDateToHHMM(epgProgrammeList[i].stop)
+        
+        if(epgProgrammeList[i].stop_timestamp>nowTimestamp && epgProgrammeList[i].start_timestamp>nowTimestamp){
+          epgProgrammeList[i].showReminderButton = true;
+        }
+        programmeList.push(epgProgrammeList[i]);
+      }
+      else if(epgProgrammeList[i].start_timestamp<startTimestamp && epgProgrammeList[i].stop_timestamp>startTimestamp)
+        programmeList.push(epgProgrammeList[i]);
+    }
+    return programmeList;
+  }
+  $scope.handleInitialProgrammeIndex = function (programmeList) {
+    var activeIndex = programmeList.length-1
+    if(programmeList && programmeList.length){
+      var currentDate = new Date();
+      for (var i = 0; i < programmeList.length; i++) {
+        var startTime = timeDateService.createSafariDate(programmeList[i].start);
+        var endTime = timeDateService.createSafariDate(programmeList[i].stop);
+        if (startTime < currentDate && currentDate < endTime) {
+          activeIndex = i;
+         
+        }
+      }
+    }
+    return activeIndex
+  }
+  
+  $rootScope.initEpgLoadDetails = function () {
+    $scope.activeEpgDate = new Date()
+    httpService.getDayEpgByChannelID(true,parseInt($scope.activeEpgDate.getTime()/1000),$scope.fullViewEpgSelectedChannel.id)
+  }
+  $scope.loadEPGDetailsForChannelID = function(epgItem, skipTransformation) {
+    var newProgrammeList = []
+      if(skipTransformation)
+        newProgrammeList = $scope.prepareTodayEpgList(epgItem.programmes)
+      else{
+        newProgrammeList = $scope.getProgrammesForSelectedDate(epgItem.programmes)
+      }
+
+      var activeEpgIndex = $scope.handleInitialProgrammeIndex(newProgrammeList)
+      $scope.showEpgProgrammeList = false;
+      if(newProgrammeList.length){
+        $scope.fullViewEpgSelectedChannel = epgItem;
+        $scope.fullViewEpgSelectedChannel.programmes = newProgrammeList;
+
+        var today = new Date();
+        var isToday = (today.toDateString() == $scope.activeEpgDate.toDateString());
+        if(!skipTransformation || isToday)
+          $scope.currentEpgProgrammeIndexFullEPGList = activeEpgIndex
+        else 
+          $scope.currentEpgProgrammeIndexFullEPGList = -1
+          
+      }
+      else{
+        $scope.fullViewEpgSelectedChannel = {id:epgItem.id,programmes:[]};
+      }
+
+      $rootScope.showEpgTemplateTodayBox = false
+     
+      $timeout(function () {
+        if(newProgrammeList.length)
+          $scope.showEpgProgrammeList = true;
+        else
+          $scope.showEpgProgrammeList = false;
+        $timeout(function () {
+          $rootScope.refreshEPGTemplate()
+        },0)
+      },0)
+  };
+  $scope.activeEpgPage = 1;
+  $scope.addDaysToDate = function(date, days) {
+    var date = new Date(date);
+    date.setDate(date.getDate() + days);
+    return date;
+  }
+  $rootScope.$on('epgChannelListUpdated', function(event, args) {
+    if (args.response && args.response[0] && args.response[0].hasOwnProperty("programmes") && args.response[0].programmes) {
+      var channelID = args.channelID;
+      $scope.loadEPGDetailsForChannelID(args.response[0], true)
+    }
+  });
+  $scope.handleChannelListEPGclick = function (epgItem) {
+    $scope.activeEpgDate = new Date()
+    httpService.getDayEpgByChannelID(true,parseInt($scope.activeEpgDate.getTime()/1000),epgItem.id)
+  }
+  $scope.loadPrevEpgDate = function () {
+    $scope.activeEpgDate = $scope.addDaysToDate($scope.activeEpgDate,-1)
+    httpService.getDayEpgByChannelID(true,parseInt($scope.activeEpgDate.getTime()/1000),$scope.fullViewEpgSelectedChannel.id)
+  }
+  $scope.loadNextEpgDate = function () {
+    $scope.activeEpgDate = $scope.addDaysToDate($scope.activeEpgDate,1)
+    httpService.getDayEpgByChannelID(true,parseInt($scope.activeEpgDate.getTime()/1000),$scope.fullViewEpgSelectedChannel.id)
+  }
+  $scope.getActiveEpgDateFormated = function () {
+    return timeDateService.getFormatedMonthddyyyy($scope.activeEpgDate)
+  }
+  $rootScope.openChannelFromReminder = function (channelID, reminder_id) {
+    $rootScope.showEpgReminderPopup = false;
+    httpService.deleteEpgReminder(reminder_id,true);
+    focusController.setDepth($rootScope.lastFocusedDepth)
+    focusController.focus($rootScope.lastFocusedItem);
+    $rootScope.openChannelByChannelID(channelID)
+  }
+  $rootScope.deleteReminderFromPopup = function (reminder_id) {
+    $rootScope.showEpgReminderPopup = false;
+    $rootScope.activeEpgReminder = {};
+    focusController.setDepth($rootScope.lastFocusedDepth)
+    focusController.focus($rootScope.lastFocusedItem);
+    httpService.deleteEpgReminder(reminder_id,true);
+  }
+  $scope.handleEPGReminder = function (item) {
+    if(!item.showReminderButton) return;
+    if(item.hasReminder){
+      for(var i=0;i<$rootScope.epgReminders.length;i++){
+        if($rootScope.epgReminders[i].string_id == item.string_id)
+          reminder_id = $rootScope.epgReminders[i].id;
+      }
+      httpService.deleteEpgReminder(reminder_id,true);
+    }
+    else
+      httpService.addEpgReminder($scope.fullViewEpgSelectedChannel.id, item.epg_channel_id, item.id,configService.epgReminderMinutes, true);
+  }
+}]);

@@ -12,8 +12,12 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
         },
         {
             name: "TV guide",
-            template: "tvshows"
+            template: "epg"
         },
+        {
+            name: "Settings",
+            template: "settings"
+        }
         /*{
             name: "Logout",
             template: "logout"
@@ -23,135 +27,6 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
             template: "account"
         },*/
     ];
-    $scope.submenuLiveTVItems = [
-        {
-            name: "EPG",
-            template: "epg"
-        },
-        {
-            name: "Channel Category",
-            template: "channelCategory"
-        },
-        {
-            name: "A-Z Channel",
-            template: "azChannel"
-        },
-        {
-            name: "Channel Search",
-            template: "channelSearch"
-        }
-    ];
-
-    $scope.letterFilters = [
-        {
-            value: "A"
-        },
-        {
-            value: "B"
-        },
-        {
-            value: "C"
-        },
-        {
-            value: "D"
-        },
-        {
-            value: "E"
-        },
-        {
-            value: "F"
-        },
-        {
-            value: "G"
-        },
-        {
-            value: "H"
-        },
-        {
-            value: "I"
-        },
-        {
-            value: "J"
-        },
-        {
-            value: "K"
-        },
-        {
-            value: "L"
-        },
-        {
-            value: "M"
-        },
-        {
-            value: "N"
-        },
-        {
-            value: "O"
-        },
-        {
-            value: "P"
-        },
-        {
-            value: "Q"
-        },
-        {
-            value: "R"
-        },
-        {
-            value: "S"
-        },
-        {
-            value: "T"
-        },
-        {
-            value: "U"
-        },
-        {
-            value: "V"
-        },
-        {
-            value: "W"
-        },
-        {
-            value: "X"
-        },
-        {
-            value: "Y"
-        },
-        {
-            value: "Z"
-        },
-        {
-            value: "0"
-        },
-        {
-            value: "1"
-        },
-        {
-            value: "2"
-        },
-        {
-            value: "3"
-        },
-        {
-            value: "4"
-        },
-        {
-            value: "5"
-        },
-        {
-            value: "6"
-        },
-        {
-            value: "7"
-        },
-        {
-            value: "8"
-        },
-        {
-            value: "9"
-        }
-    ];
 
     $rootScope.highlightedItems = [];
 
@@ -160,10 +35,14 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
 
     $scope.$on('highlightedLoaded', function (event, args) {
         $rootScope.highlightedItems = args.response;
-        if($rootScope.highlightedItems.length)
+        if($rootScope.highlightedItems.length){
+          $rootScope.favoriteUpElement = 'highLightedItem0';
           $rootScope.loadHighlightedView = true;
-        else
-          $rootScope.loadHighlightedView = true;
+        }
+        else{
+          $rootScope.loadHighlightedView = false;
+          $rootScope.favoriteUpElement = 'menuItem0';
+        }
     });
 
     $scope.openHighlighted = function ($event, $originalEvent,item) {
@@ -201,12 +80,6 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
 
     $rootScope.$on("refreshCurrentTime", $scope.refreshCurrentTime);
 
-    $rootScope.$on("updateSubmenuItems", function (event, args) {
-        if (args.template && args.template == "liveTV")
-            $scope.submenuItems = $scope.submenuLiveTVItems;
-        else if (args.template && args.template == "movies")
-            $scope.submenuItems = $scope.submenuMovieItems;
-    });
     $scope.isScrolledIntoView = function (elem, container, move, customHeader,moveValue) {
         var docViewTop = container.offset().top;
         var docViewBottom = docViewTop + container.height();

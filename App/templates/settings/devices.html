@@ -1,0 +1,73 @@
+<div class="col-xs-12 devicesPanel">
+   <div class="col-xs-12 devicesWrapper">
+      <h1 class="col-xs-12">Devices</h1>
+      <div class="col-xs-12 devicesContent">
+         <div class="devicesListWrapper">
+            <caph-list container-class="deviceListVerticalControl" items="item in allDevices" loop="false" direction="vertical" delay="10" duration="0.1s">
+               <div class="col-xs-12 deviceListItem" on-selected="selectDeviceFromList(item)" focusable data-focusable-depth="0" id="deviceItem{{$index}}" data-focusable-name="deviceItem{{$index}}">
+                   <span class="deviceInfo">{{($index+1)}}. {{item.user_agent}}</span>
+               </div>
+           </caph-list> 
+         </div>
+         <div class="devicesListWrapper" ng-if="!showDeviceList">
+            <span class="deviceErrorMessage">{{noDevicesMessage}}</span>
+         </div>
+      </div>
+  </div>
+</div>
+
+<div class="popup-wrapper" ng-if="showDeviceDetailsPopup">
+   <div class="popup wide devicePopup">
+     <div class="popup-msg text-left"><img class="bellIcon" ng-src="/App/assets/images/infoIcon.svg" alt=""/>Device information</div>
+     <div class="col-xs-6 leftBox">
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">Username</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.account_profile.username}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">First name</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.account_profile.first_name}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">Last login</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.last_login}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">Country</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.country_name}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field noBorder user-agent-box">
+         <span class="col-xs-12 no-padding field-label">User agent</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.user_agent}}</span>
+      </div>
+     </div>
+     <div class="col-xs-6 rightBox">
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">Email</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.account_profile.email}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">Last name</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.account_profile.last_name}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">Device type</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.device_type}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field">
+         <span class="col-xs-12 no-padding field-label">City</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.city}}</span>
+      </div>
+      <div class="col-xs-12 no-padding popup-text-field noBorder">
+         <span class="col-xs-12 no-padding field-label">IP Address</span>
+         <span class="col-xs-12 field-label-value">{{selectedDevice.ip_address}}</span>
+      </div>
+     </div>
+     <div class="col-xs-12 text-center popupButtons">
+       <caph-button focusable class="control-item-wrapper close-btn" title="Close" on-selected="closeDevicePopup()" data-focusable-name="closedevicepopup" data-focusable-depth="9">
+         <span>Close</span>
+       </caph-button>
+     </div>
+   </div>
+ </div>
+ 

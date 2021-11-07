@@ -1,0 +1,25 @@
+<div class="col-xs-12 settingsTemplateWrapper">
+        <div class="verticalSettingsListWrapper">
+            <div class="col-xs-12 no-padding sideChannelsList sideSettingsList">
+                <caph-list container-class="settingsListVerticalControl" items="item in settingsItems" loop="false" direction="vertical" delay="10" duration="0.1s">
+                    <div class="col-xs-12 settingsListItem" focusable data-focusable-depth="0" id="settingsItem{{$index}}" data-focusable-name="settingsItem{{$index}}" on-selected="openSettingsPanel(item.template)">
+                        <span class="templateTitle" ng-bind="item.name"></span>
+                    </div>
+                </caph-list> 
+            </div>
+        </div>
+        <div class="settingsPanelWrapper">
+            <div class="settingsPanelContent">
+                <ng-include ng-cloak ng-if="account_information" src="'App/templates/settings/accountInfo.html'"></ng-include>
+                <ng-include ng-cloak ng-if="add_account" src="'App/templates/settings/addAccount.html'"></ng-include>
+                <ng-include ng-cloak ng-if="payment_history" src="'App/templates/settings/paymentHistory.html'"></ng-include>
+                <ng-include ng-cloak ng-if="change_password" src="'App/templates/settings/changePassword.html'"></ng-include>
+                <ng-include ng-cloak ng-if="subscription" src="'App/templates/settings/subscription.html'"></ng-include>
+                <ng-include ng-cloak ng-if="billing_information" src="'App/templates/settings/billingInformation.html'"></ng-include>
+                <ng-include ng-cloak ng-if="settings" src="'App/templates/settings/settings.html'"></ng-include>
+                <ng-include ng-cloak ng-if="devices" src="'App/templates/settings/devices.html'"></ng-include>
+                <ng-include ng-cloak ng-if="themes" src="'App/templates/settings/themes.html'"></ng-include>
+            </div>
+        </div>
+    </div>
+</div>

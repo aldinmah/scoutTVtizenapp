@@ -1,12 +1,21 @@
 <div class="channelListWrapper col-xs-12">
     <h2>Favorite Channels</h2>
     <caph-list container-class="channelList" items="item in favoriteChannels" loop="false">
-        <div class="channelItem favoriteChannel" data-focusable-next-focus-up="highLightedItem0" data-focusable-name="favoriteChannel{{$index}}" data-itemindex="{{$index}}" data-channelitem="true" focusable on-focused="focusHorizontalItem($event, $originalEvent)" on-selected="openChannel($event, $originalEvent,{{item.id}})">
+        <div class="channelItem favoriteChannel" data-focusable-group="favoriteGroup" data-focusable-name="favoriteChannel{{$index}}" data-itemindex="{{$index}}" data-channelitem="true" focusable on-focused="focusHorizontalItem($event, $originalEvent)" on-selected="openChannel($event, $originalEvent,{{item.id}})">
             <span class="hidden channelId">{{item.id}}</span>
             <span class="hidden isFavorite">{{item.favorite}}</span>
 
             <div class="col-xs-12 no-padding itemBannerLogoBox">
-                <div class="favorite-star" ng-if="item.favorite"><img src="App/assets/images/favorite_star.png" alt="" /></div>
+                <div class="favorite-star" ng-if="item.favorite">
+                    <svg width="60" height="60" viewBox="10 10 40 40">
+                        <g fill="none" fill-rule="evenodd">
+                            <path d="M14 14h32v32H14z"></path>
+                            <path fill="#FFD700"
+                                d="M30 37.027L38.24 42l-2.187-9.373 7.28-6.307-9.586-.813L30 16.667l-3.747 8.84-9.586.813 7.28 6.307L21.76 42z">
+                            </path>
+                        </g>
+                    </svg>
+                </div>
                 <div class="itemBannerBox col-xs-12 no-padding"><img class="itemBanner" ng-src="{{item.screenshot_url}}" alt=""></div>
             </div>
             <div class="itemInfo col-xs-12">

@@ -4,6 +4,9 @@ html, body{
     font-size: 18px;
     font-family: 'Roboto';
 }
+[ng-cloak]{
+  display: none !important;
+}
 body{
     background-color: #eee;
     color: #333;
@@ -51,6 +54,8 @@ img{
 .loginWrapper .loginInput{
     width: 60%;
 }
+.settingsTemplateWrapper .regularInputWrapper.countryWrapper .countryDropdown,
+.regularInput > input,
 .loginWrapper .loginInput > input{
     background-color: #fff;
     padding-left: 15px;
@@ -66,6 +71,10 @@ img{
     color: #333;
     transition: all 0.1s ease-in;
     font-size: 26px;
+}
+.settingsTemplateWrapper .regularInputWrapper.countryWrapper .countryDropdown{
+    display: flex;
+    align-items: center;
 }
 .loginWrapper .login-btn{
     background-color: #333;
@@ -93,9 +102,14 @@ img{
 .loginWrapper .forgot-link{
     font-size: 24px;
 }
+.settingsTemplateWrapper .regularInputWrapper.countryWrapper .countryDropdown.focused,
+.regularInput.focused > input,
 .loginWrapper .loginInput.focused > input{
     border: 5px solid #0fa0db;
     transform: scale(1.05);
+}
+.settingsPanelContent .regularInput.focused > input{
+    transform: scale(1);
 }
 .loginWrapper .login-btn.focused{
     background-color: #0fa0db;
@@ -136,15 +150,16 @@ img{
 }
 .popup{
   position: relative;
-  background-color: #202a31;
+  background-color: #fff;
   width: 50%;
   left: 25%;
-  top: 25%;
-  color: #ffffff;
+  top: 20%;
+  color: #333;
   text-align: center;
-  font-size: 42px;
-  border-radius: 2px;
-  padding: 50px 20px
+  font-size: 38px;
+  border-radius: 10px;
+  padding: 50px 20px;
+  float: left;
 }
 .popup-wrapper.loader{
   opacity: 1;
@@ -154,6 +169,87 @@ img{
   background-color: #001d31;
   opacity: 1;
   top: 15%
+}
+.popup.wide{
+    width: 70%;
+    max-height: 80%;
+    left: 15%;
+    top: 10%;
+    overflow: hidden;
+    padding-top: 30px;
+}
+.devicePopup > .popup-text-field{
+    font-size: 32px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    padding: 5px 15px;
+}
+.popup .popup-text-field.noBorder{
+    border: 0 !important;
+}
+.popup-msg{
+    margin-bottom: 35px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #ccc;
+}
+.devicePopup .popup-msg{
+    margin-bottom: 15px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+    text-align: left;
+    padding-left: 40px;
+}
+.popup-msg .infoIcon{
+    width: 175px;
+    position: absolute;
+    top: -3px;
+    left: 10px
+}
+.popup-msg .bellIcon{
+    width: 40px;
+    position: relative;
+    top: -5px;
+    left: -15px;
+}
+.popup .user-agent-box{
+    max-height: 205px;
+    overflow: hidden;
+}
+.popup .field-label{
+    font-size: 26px;
+    text-align: left;
+}
+.popup .field-label-value{
+    font-size: 30px;
+    font-weight: 500;
+    text-align: left;
+    padding-left: 30px;
+}
+.popup .popup-text-field{
+    border-bottom: 1px solid #ccc;
+}
+.popup .leftBox{
+    border-right: 1px solid #ccc;
+}
+.popupButtons{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid #ccc;
+}
+.popupButtons .control-item-wrapper{
+    float: left;
+    font-size: 34px;
+    padding: 20px 60px;
+    margin: 0;
+}
+.popupButtons .control-item-wrapper.focused{
+    background: #0fa0db;
+    color: #fff;
+    border-color: #0fa0db;
 }
 
 /* Absolute Center Spinner */
@@ -172,6 +268,10 @@ img{
     margin: 0;
     width: 100%;
     height: 100%;
+}
+.loading.epgListLoader{
+    position: absolute;
+    background-color: #eee;
 }
 .player-loader.loading{
     background-color: rgba(0,0,0,0.85);
@@ -304,7 +404,7 @@ img{
     left: -50px;
 }
 .homeWrapper{
-    padding-top: 30px;
+    padding-top: 0px;
 }
 .mainWrapper .menuHorizontalList {
     width: 1400px;
@@ -314,9 +414,17 @@ img{
     top: 12px;
 }
 .mainWrapper .menuHorizontalList .menuItem {
-    width: 210px;
+    width: 250px;
     height: 60px;
     margin: 0px 5px;
+    padding: 0 15px;
+    float: left;
+}
+.mainWrapper .menuHorizontalList .menuItem.home{
+    width: 210px;
+}
+.mainWrapper .menuHorizontalList .menuItem.liveTV{
+    width: 220px;
 }
 .mainWrapper .headerBox .activeTemplate {
     height: 50px;
@@ -337,10 +445,10 @@ img{
     top: 15px;
 }
 .highlightedWrapper {
-    padding-bottom: 20px
+    margin-top: 30px
 }
 .mainWrapper .mainContentBox {
-    height: 960px;
+    height: 860px;
     position: relative;
     padding-top: 0px;
 }
@@ -466,6 +574,9 @@ img{
     margin-bottom: 10px;
     padding-left: 20px
 }
+.homeWrapper .channelListWrapper{
+    margin-top: 30px;
+}
 .defaultListWrapper h2,
 .channelListWrapper h2 {
     color: #333;
@@ -507,7 +618,7 @@ img{
     -moz-transform: scale(1.1);
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
-    box-shadow: 0px 0px 5px 4px rgb(15, 160, 219);
+    box-shadow: 0px 0px 5px 4px #0fa0db;
 }
 .mainWrapper .mainContentBox .channelList .channelItem img.itemBanner {
     max-width: 70%;
@@ -565,8 +676,16 @@ img{
     right: 5px;
     z-index: 9999;
     background-color:rgba(0,0,0,0.7);
-    border-radius: 5px;
-    padding: 5px
+    border-radius: 50px;
+    padding: 5px;
+    display: inline-block;
+    height: 60px;    
+    width: 60px;
+    background: #000;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .favorite-star img{
     max-width: 100%;
@@ -600,9 +719,12 @@ img{
 .roundBtn.yellow{background: yellow;}
 .roundBtn.blue{background: #0084ff;}
 
-.playerTemplateWrapper .sideChannelsListVertical {
+.playerTemplateWrapper .verticalSettingsListWrapper {
     width: 350px;
     height: 850px;
+}
+.verticalSettingsListWrapper{
+    float: left;
 }
 .playerTemplateWrapper .sideChannelVertical {
     width: 350px;
@@ -646,6 +768,7 @@ img{
     opacity: 0.98;
     padding-top: 50px
 }
+
 .sideChannelsListVertical {
     height: 750px;
     width: 400px;
@@ -660,10 +783,16 @@ img{
     height: 100%;
     width: 100%;
 }
+
+.epgFullView .sideChannelsListVertical{
+    width: 595px;
+    height: 775px;
+}
 .playerTemplateWrapper .sideChannelsListVertical {
     width: 350px;
     height: 650px;
 }
+.epgFullView .sideChannelVertical,
 .playerTemplateWrapper .sideChannelVertical {
     width: 350px;
     height: 160px;
@@ -679,9 +808,23 @@ img{
     margin-bottom: 20px;
     margin-top: 30px;
 }
+.epgFullView .sideChannelVertical.focused,
 .playerTemplateWrapper .sideChannelVertical.focused{
     background: #ededed;
 }
+.settingsTemplateWrapper .verticalSettingsList,
+.epgFullView .verticalEpgChannelList{
+    width: 650px;
+    height: 825px;
+    z-index: 99999;
+    position: fixed;
+    left: 0;
+    top: 0;
+    opacity: 0.98;
+    padding: 25px;
+    padding-top: 50px;
+}
+.epgFullView .sideChannelVertical .extendCard,
 .playerTemplateWrapper .sideChannelVertical .extendCard{
     color: #2991dd;
     font-weight: bold;
@@ -705,6 +848,7 @@ img{
     opacity: 0;
     line-height: 40px;
 }
+.epgFullView .sideChannelVertical.focused .extendCard,
 .playerTemplateWrapper .sideChannelVertical.focused .extendCard{
     width: 550px;
     left: 350px;
@@ -713,6 +857,34 @@ img{
     transition: width .2s ease-out, opacity .3s ease .1s;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
+}
+.epgFullView .sideChannelVertical.focused .extendCard{
+    position: relative;
+    width: 100%;
+    left: 0;
+    height: 100%;
+}
+.epgFullView .sideChannelVertical .logoBox{
+    width: 200px;
+    height: auto;
+    float: left;
+    align-self: center;
+    display: flex;
+    padding-left: 10px;
+}
+.epgFullView .sideChannelVertical .epgChannelListLogo{
+    height: auto;
+    width: 100px;
+    margin-left: 10px;
+}
+.epgFullView .sideChannelVertical .epgInfoBox{
+    width: calc(100% - 195px);
+    float: left;
+    align-items: flex-start;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    padding-left: 15px;
 }
 .channelInfoBarWrapper {
     height: 400px;
@@ -737,7 +909,7 @@ img{
     float: left
 }
 .channelInfoBarWrapper .arrow-right-box {
-    padding: 140px 0px 30px 100px;
+    padding: 140px 0px 30px 0px;
     right: -25px;
     font-size: 38px;
     width: 0%;
@@ -762,6 +934,7 @@ img{
     font-size: 36px;
     text-align: center;
 }
+.channelInfoBarWrapper .controls-box,
 .channelInfoBarWrapper .details-box {
     padding: 15px 0px 15px 20px;
     font-size: 36px;
@@ -776,6 +949,13 @@ img{
     height: 145px;
     font-size: 32px;
     font-weight: 400;
+    width: calc(100% - 300px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.channelInfoBarWrapper .channelInfoBar{
+    display: flex;
 }
 .playerTemplateWrapper .sideChannelVertical .extendCard .channelTitle{
     display: inline-block;
@@ -830,4 +1010,590 @@ img{
     padding: 2px 6px 6px 8px;
     font-size: 32px;
     margin-right: 10px;
+}
+.channelInfoBarWrapper .controls-box{
+    display: flex;
+    align-items: center;
+}
+.control-item-wrapper,
+.epgDetailsBox .control-item-wrapper,
+.channelInfoBarWrapper .control-item-wrapper{
+    float: left;
+    width: auto;
+    display: flex;
+    align-items: center;
+    margin-right: 25px;
+    padding: 15px 20px;
+    border: 3px solid #ccc;
+    font-size: 28px;
+}
+.epgDetailsBox .control-item-wrapper{
+    float: right;
+}
+.channelInfoBarWrapper .control-item-wrapper.back-option-btn{
+    padding: 15px 40px;
+    font-size: 32px;
+}
+.channelInfoBarWrapper .control-item-wrapper.more-options-btn{
+    position: absolute;
+    right: 0;
+    -moz-transition: all 0.2s;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    font-size: 32px;
+}
+.channelInfoBarWrapper .control-item-wrapper p,
+.channelInfoBarWrapper .control-item-wrapper.more-options-btn p{
+    margin: 0;
+}
+.control-item-wrapper,
+.channelInfoBarWrapper .control-item-wrapper{
+    -moz-transition: all 0.2s;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+}
+.epgDetailsBox .control-item-wrapper.focused,
+.channelInfoBarWrapper .control-item-wrapper.focused,
+.channelInfoBarWrapper .control-item-wrapper.more-options-btn.focused{
+    border: 3px solid #0fa0db;
+    transform: scale(1.05);
+}
+.channelInfoBarWrapper .control-item-wrapper.focused .control-item{
+    background: #0fa0db;
+}
+.channelInfoBarWrapper .control-item-wrapper .control-item,
+.channelInfoBarWrapper .control-item-wrapper p{
+    float: left;
+    width: auto;
+}
+.channelInfoBarWrapper .control-item-wrapper .control-item{
+    display: inline-block;
+    height: 50px;    
+    width: 50px;
+    background: #000;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.channelInfoBarWrapper .control-item-wrapper .control-item svg{
+    fill: #fff;
+}
+.channelInfoBarWrapper .control-item-wrapper p{
+    margin-left: 15px;
+    margin-bottom: 0px;
+}
+.control-item-wrapper{
+    position: relative;
+}
+.countryListWrapper,
+.audioTracksWrapper{
+    width: 100%;
+    height: auto;
+    position: absolute;
+    left: 0;
+    bottom: 100px;
+}
+.countryItem,
+.audioTrackItem{
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    border: 3px solid transparent;
+    background: rgba(255,255,255,1);
+}
+.countryItem.focused,
+.audioTrackItem.focused{
+    border: 3px solid #0fa0db;
+    transform: scale(1.05);
+}
+
+.fullScreenTemplateView {
+    background-color: #eee;
+    opacity: 1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    padding: 100px 30px
+}
+.fullScreenTemplateView.noTopPadding {
+    padding: 0px 30px
+}
+.fullScreenTemplateView.azChannelsBox .letterFilterWrapper {
+    padding-top: 80px
+}
+.fullScreenTemplateView .channelCategoriesVertical {
+    width: 350px;
+    height: 800px;
+    padding-top: 75px;
+}
+.fullScreenTemplateView .childCategories .channelCategoriesVertical {
+    padding-top: 125px;
+    height: 700px;
+}
+.fullScreenTemplateView .categoryItemVertical {
+    width: 300px;
+    height: 50px;
+    margin-bottom: 15px;
+}
+.fullScreenTemplateView .focused .itemTitle {
+    color: #2991dd
+}
+.fullScreenTemplateView .itemTitle {
+    font-size: 38px;
+    font-weight: 300;
+}
+.fullScreenTemplateView .itemsContainer {
+    height: 925px;
+}
+.fullScreenTemplateView .epgDetailsBox {
+    font-size: 32px;
+}
+.fullScreenTemplateView .epgDetailsBox .dateControls{
+    font-size: 42px;
+}
+.fullScreenTemplateView.epgFullView {
+    padding-top: 50px
+}
+.fullScreenTemplateView .epgListBox {
+    height: 925px;
+    max-height: 925px;
+    margin-top: 0px;
+    overflow: hidden
+}
+.fullScreenTemplateView .epgDetailsBox .logoBox img {
+    max-width: 100%;
+    padding-left: 75px;
+    padding-right: 75px;
+}
+.fullScreenTemplateView .logoBox .channelNumber {
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+}
+.fullScreenTemplateView .epgDetailsBox .detailsBox .channelEpgTitle {
+    font-size: 42px;
+    font-weight: bold;
+}
+.fullScreenTemplateView .epgDetailsBox .detailsBox .channelEpgTime {
+    font-size: 34px;
+    margin: 15px 0;
+}
+.fullScreenTemplateView .epgDetailsBox .detailsBox .channelEpgDescription {
+    font-size: 32px;
+    font-weight: 300;
+    max-height: 225px;
+    overflow: hidden;
+}
+.fullScreenTemplateView .epgListBox .epgChannelTitleListWrapper{
+    height: 580px;
+    overflow: hidden;
+}
+.fullScreenTemplateView .epgListBox .epgData {
+    height: 925px;
+    overflow: hidden;
+    float: right;
+    background: #fff;
+    border-radius: 10px;
+    padding: 0 
+}
+
+.fullScreenTemplateView .epgListBox .epgSlide,
+.fullScreenTemplateView .epgListBox .epgChannelTitleListWrapper .epgChannelList {
+    height: 580px;
+}
+.fullScreenTemplateView .epgListBox .epgSlide {
+    z-index: 4
+}
+.fullScreenTemplateView .epgListBox .epgChannelTitleListWrapper .epgCurrentDate {
+    height: 75px;
+    font-size: 34px;
+    text-align: center;
+    padding-top: 15px;
+    background-color: #435968;
+    z-index: 10
+}
+.settingsTemplateWrapper .settingsListItem,
+.fullScreenTemplateView .epgListBox .epgListChannelItem {
+    font-size: 34px;
+    color: #1e1e1e;
+    text-align: left;
+    padding: 10px;
+    background-color: #fff;
+    height: 165px;
+    margin-bottom: 25px;
+    text-decoration: none;
+    z-index: 5;
+    width: 590px;
+    border-radius: 10px;
+    display: flex;
+}
+
+.fullScreenTemplateView .epgListBox .epgListChannelItem .channelTitle{
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    min-height: 44px;
+}
+.fullScreenTemplateView .epgListBox .epgListChannelItem .epgInfo{
+    font-size: 26px;
+}
+.fullScreenTemplateView .epgListBox .epgListChannelItem.focused {
+    background-color: rgba(15,160,219,.2)
+}
+.epgFullView .dateBoxWrapper{
+    padding:35px 25px 25px 25px
+}
+.epgFullView .epgProgrammeList.noEPGData{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+}
+.epgFullView .epgProgrammeList .programmeBoxWrapper{
+    width: 1220px;
+    height: 650px; 
+    position: relative;
+    overflow: hidden;
+}
+.epgFullView .epgProgrammeList .programmeBoxWrapper .caph-list-wrapper{
+    width: 100%;
+    height: 100%;
+}
+.epgFullView .epgProgrammeList .programmeBox{
+    width: 1220px;
+    height: 200px;
+    border-top: 2px solid #d6d6d6;
+    margin-bottom: 0px;
+    overflow: hidden;
+    padding: 10px 25px;
+}
+.epgFullView .epgProgrammeList .programmeBox.focused{
+    background-color: rgba(15,160,219,.2);
+}
+.epgFullView .epgProgrammeList .programmeBox.currentProgrammeActive{
+    background-color: rgba(15,160,219,.4);
+}
+.epgFullView .epgChannelProgrammeBox .channeInfoBoxEPG{
+    margin-top: 35px
+}
+.epgFullView .epgChannelProgrammeBox .channeInfoBoxEPG .epgDetailsLogo{
+    width: 150px;
+    float: left;
+}
+.epgFullView .epgChannelProgrammeBox .channeInfoBoxEPG .channelTitle{
+    font-weight: 400;
+    font-size: 44px;
+    margin-top: 10px;
+    margin-left: 10px;
+    display: inline-block;
+}
+.epgDetailsBox .epgPlayChannelBtnWrapper{
+    float: right;
+}
+.epgDetailsBox .control-item-wrapper.epgPlayChannelBtn{
+    margin-right: 0;
+    font-size: 34px;
+    width: 100%;
+}
+.epgDetailsBox .control-item-wrapper p{
+    margin:0;
+    text-align: center;
+    width: 100%;
+}
+.epgDetailsBox .control-item-wrapper.addReminderBtnEpg{
+    position: absolute;
+    right: 0px;
+    padding: 8px 20px;
+    top: 10px;
+    border: 2px solid transparent;
+    font-size: 24px;
+    display: none;
+}
+.epgDetailsBox .programmeBox.focused .control-item-wrapper.addReminderBtnEpg{
+    border: 2px solid #0fa0db;
+    transform: scale(1.05);
+    display: block
+}
+.epgDetailsBox .programmeBox .channelEpgTitle{
+    font-weight: 500;
+    font-size: 36px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: calc(100% - 230px);
+}
+.epgDetailsBox .programmeBox .channelEpgTitle .channelEpgTime{
+    padding-left: 10px;
+    font-size: 32px;
+    font-weight: 400;
+    position: relative;
+    top: 0px;
+}
+.epgDetailsBox .programmeBox .channelEpgDescription{
+    font-size: 26px;
+    line-height: 1.2em;
+    margin-top: 25px;
+}
+.epgDetailsBox  .dateControls .control-item-wrapper{
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    font-size: 34px;
+}
+.epgDetailsBox  .dateControls .control-item-wrapper p{
+    text-align: center;
+    width: 100%;
+}
+.epgDetailsBox  .dateControls .control-item-wrapper.prevEpgButton{
+    float: left;
+}
+.epgDetailsBox  .dateControls .epgDateActiveBox span{
+    display: block;
+    margin-top: 10px;
+}
+.epgDetailsBox  .bellIcon{
+    fill: #0fa0db;
+    width: 35px;
+    position: relative;
+    top: -3px;
+}
+.settingsTemplateWrapper{
+    padding-top: 45px;
+}
+.settingsTemplateWrapper .settingsListVerticalControl{
+    width: 375px;
+    height: 775px; 
+}
+.settingsTemplateWrapper .settingsPanelWrapper{
+    float: right;
+    width: calc(100% - 385px);
+    font-size: 26px;
+}
+.settingsTemplateWrapper .settingsPanelContent{
+    float: left;
+    width: 100%;
+}
+.settingsTemplateWrapper .sideSettingsList{
+    height: 780px;
+}
+.settingsTemplateWrapper .settingsListItem{
+    width: 365px;
+    padding: 10px 25px;
+    height: 75px;
+    border-radius: 2px;
+    align-items: center;
+}
+.settingsTemplateWrapper .settingsListItem.focused{
+    background-color: #0fa0db;
+    transform: scale(1.05);
+    font-weight: bold;
+    color: #fff;
+}
+.settingsTemplateWrapper .regularInputWrapper{
+    float: left;
+    width: 100%;
+}
+.settingsTemplateWrapper .regularInputWrapper.countryWrapper{
+    position: relative;
+}
+
+.accountInfoWrapper{
+    position: relative;
+    top: 0;
+    transition: all 0.3s ease-in;
+}
+.addAccountPanel.moveFieldsUp,
+.accountInfoWrapper.moveFieldsUp{
+    top: -245px;
+}
+.settingsPanelContent h1,
+.accountInfoWrapper h1{
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #333;
+    padding-bottom: 25px;
+}
+.accountInfoWrapper .radioInput{
+    width: 175px;
+    float: left;
+}
+.accountInfoWrapper .radioInput .caph-radiobutton{
+    width: 100%;
+    float: left;
+    padding: 10px 20px;
+}
+.accountInfoWrapper .radioInput .circle{
+    display: block;
+    height: 25px;
+    width: 25px;
+    background: #fff;
+    border:2px solid #666;
+    border-radius: 50px;
+    float: left;
+    margin-right: 10px;
+    position: relative;
+    top: 5px;
+}
+.radioInputWrapper.maleSelected .male.circle,
+.radioInputWrapper.femaleSelected .female.circle,
+.radioInputWrapper .caph-radiobutton.selected .circle,
+.radioInputWrapper [checked="true"] .circle,
+.accountInfoWrapper .radioInput.focused .circle{
+    background: #0fa0db;
+    border:2px solid #666;
+    transform: scale(1.1);
+}
+.settingsTemplateWrapper .radioInputWrapper{
+    min-height: 127px;
+}
+.settingsTemplateWrapper .radioInputWrapper > span{
+    margin-bottom: 5px;
+}
+.buttonsWrapper{
+    margin-top: 25px;
+}
+.buttonsWrapper .save-btn,
+.buttonsWrapper .cancel-btn{
+    font-size: 34px;
+    color: #1e1e1e;
+    text-align: center;
+    background-color: #fff;
+    text-decoration: none;
+    z-index: 5;
+    width: 200px;
+    padding: 10px 25px;
+    height: 75px;
+    border-radius: 2px;
+    align-items: center;
+    margin-left: 25px;
+}
+.buttonsWrapper .save-btn.focused,
+.buttonsWrapper .cancel-btn.focused{
+    background-color: #0fa0db;
+    transform: scale(1.05);
+    font-weight: bold;
+    color: #fff;
+}
+.buttonsWrapper .save-btn.focused.disabled,
+.buttonsWrapper .save-btn.disabled{
+    background-color: #ccc;
+    opacity: 1;
+    color: #999;
+}
+.settingsTemplateWrapper .error-validation-message{
+    font-size: 22px;
+    font-style: italic;
+    color: red;
+    position: relative;
+    top: -20px;
+}
+.settingsTemplateWrapper .leftColumn{
+    padding-right: 50px;
+}
+.settingsTemplateWrapper .rightColumn{
+    padding-left: 0px;
+}
+.settingsTemplateWrapper .regularInputWrapper .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.settingsTemplateWrapper .regularInputWrapper .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.settingsTemplateWrapper .regularInputWrapper  .checked .slider {
+    background-color: #3ea9ff;
+}
+  
+.settingsTemplateWrapper .regularInputWrapper .checked  .slider {
+    box-shadow: 0 0 1px #3ea9ff;
+}
+.settingsTemplateWrapper .regularInputWrapper .focused .checked .slider {
+    background-color: #2196F3;
+}
+  
+.settingsTemplateWrapper .regularInputWrapper .focused .checked  .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+.settingsTemplateWrapper .regularInputWrapper .checked  .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+.settingsTemplateWrapper .regularInputWrapper .caph-checkbox{
+    margin-top: 20px;
+}
+.settingsTemplateWrapper .regularInputWrapper .caph-checkbox.focused .checkboxWrapper{
+    transform: scale(1.25);
+}
+.settingsTemplateWrapper .regularInputWrapper .checkboxWrapper{
+    font-size: 24px;
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.settingsTemplateWrapper .regularInputWrapper .slider.round {
+    border-radius: 34px;
+    width: 60px;
+}
+.settingsTemplateWrapper .regularInputWrapper .slider.round:before {
+    border-radius: 50%;
+}
+.settingsTemplateWrapper .deviceErrorMessage{
+    font-size: 36px;
+}
+.settingsTemplateWrapper .paymentListVerticalControl,
+.settingsTemplateWrapper .deviceListVerticalControl{
+    width: 100%;
+    height: 675px; 
+    position: relative;
+}
+.settingsTemplateWrapper .paymentListVerticalControl > .caph-list-wrapper,
+.settingsTemplateWrapper .deviceListVerticalControl > .caph-list-wrapper{
+    width: 100%;
+}
+.settingsTemplateWrapper .paymentListItem .deviceInfo,
+.settingsTemplateWrapper .deviceListItem .deviceInfo{
+    font-size: 32px;
+    font-weight: 400;
+}
+.settingsTemplateWrapper .paymentListItem,
+.settingsTemplateWrapper .deviceListItem{
+    width: 100%;
+    padding: 10px 25px;
+    height: 110px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+.settingsTemplateWrapper .paymentListItem.focused,
+.settingsTemplateWrapper .deviceListItem.focused{
+    background-color: #0fa0db;
+    color: #fff;
+}
+.settingsTemplateWrapper .deviceListVerticalControl,
+.settingsTemplateWrapper .paymentHistoryContent{
+    overflow: hidden;
 }

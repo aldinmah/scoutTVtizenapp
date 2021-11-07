@@ -1,0 +1,17 @@
+<div class="popup-wrapper" ng-if="showEpgReminderPopup">
+  <div class="popup">
+    <div class="popup-msg">
+      <img class="bellIcon" ng-src="/App/assets/images/bell.svg" alt=""/>Reminder </div>
+    <span class="col-xs-12 no-padding text-center">Channel : {{activeEpgReminder.channel.title}}</span>
+    <span class="col-xs-12 no-padding text-center">Programme : {{activeEpgReminder.epg_programme.title}}</span>
+    <span class="col-xs-12 no-padding text-center">Start time : {{activeEpgReminder.startFormated}}</span>
+    <div class="col-xs-12 text-center popupButtons">
+      <caph-button focusable class="control-item-wrapper proceed-btn" data-focusable-name="remindergochannelbtn" data-focusable-depth="20" on-selected="openChannelFromReminder(activeEpgReminder.channel_id,activeEpgReminder.id)">
+        <span>Go to channel</span>
+      </caph-button>
+      <caph-button focusable class="control-item-wrapper close-btn" title="Close" data-focusable-name="reminderdismissbtn" data-focusable-depth="20" on-selected="deleteReminderFromPopup(activeEpgReminder.id)">
+        <span>Dismiss</span>
+      </caph-button>
+    </div>
+  </div>
+</div>

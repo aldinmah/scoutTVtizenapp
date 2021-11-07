@@ -23,8 +23,11 @@
                 -->
                 <div ng-controller="epgCtrl">
                     <ng-include ng-if="showLiveTVTemplate" src="'App/templates/liveTV.html'"></ng-include>
+                    <ng-include ng-if="showEpgTemplate" src="'App/templates/epg.html'"></ng-include>
                 </div>
-
+                <div ng-controller="settingsCtrl">
+                    <ng-include ng-if="showSettingsTemplate" src="'App/templates/settings.html'"></ng-include>
+                </div>
             </div>
 
         </div>

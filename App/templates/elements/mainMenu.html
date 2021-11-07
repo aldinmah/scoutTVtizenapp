@@ -1,5 +1,14 @@
-<caph-list container-class="menuHorizontalList" items="item in menuItems">
-    <div class="menuItem" data-itemindex="{{$index}}" data-template="{{item.template}}" focusable on-selected="openTemplate($event)" data-focusable-group="mainMenu" data-focusable-name="menuItem{{$index}}">
-        <span class="itemTitle">{{item.name}}</span>
+    <div class="menuHorizontalList">
+        <div class="menuItem home" data-itemindex="0" data-template="home" focusable on-selected="openTemplate($event)" data-focusable-group="mainMenu" data-focusable-name="menuItem0">
+            <span class="itemTitle">Home</span>
+        </div>
+        <div class="menuItem liveTV" data-itemindex="1" data-template="liveTV" focusable on-selected="openTemplate($event)" data-focusable-group="mainMenu" data-focusable-name="menuItem1">
+            <span class="itemTitle">Live TV</span>
+        </div>
+        <div class="menuItem epg" data-itemindex="2" data-template="epg" focusable on-selected="openTemplate($event)" data-focusable-group="mainMenu" data-focusable-name="menuItem2">
+            <span class="itemTitle">TV guide</span>
+        </div>
+        <div class="menuItem settings" data-itemindex="3" data-template="settings" focusable on-selected="openTemplate($event)" data-focusable-group="mainMenu" data-focusable-name="menuItem3">
+            <span class="itemTitle">Settings</span>
+        </div>
     </div>
-</caph-list>

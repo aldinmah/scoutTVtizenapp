@@ -9,6 +9,7 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
     $rootScope.currentPlayingVod = {};
     $scope.bufferPercentage = 0;
     $scope.focusItems = ['1','2'];
+    $scope.audioTracks = [];
     $scope.listener = {
       onbufferingstart: function() {
         console.log("Buffering start.");
@@ -50,8 +51,29 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
     $scope.playerKeyDown = function ($event, $originalEvent) {
         console.log($event.keyCode);
     }
+    $scope.handleAudioTracks = function () {
+      var totalTrackInfo = webapis.avplay.getTotalTrackInfo();
+      $scope.audioTracks = [];
+      for (var i=0; i<totalTrackInfo.length;i++)
+      {
+        if (totalTrackInfo[i].type == "AUDIO")
+        {
+          totalTrackInfo[i].extra_info = JSON.parse(totalTrackInfo[i].extra_info)
+          $scope.audioTracks.push(totalTrackInfo[i])
+        }
+      }
+      console.log($scope.audioTracks);
+    }
+    $scope.changeAudioTrack = function (audioTrackIndex) {
+      console.log('setting audio track index : ',audioTrackIndex);
+      if (webapis.avplay.getState() == "READY" || webapis.avplay.getState() == "PLAYING" || webapis.avplay.getState() == "PAUSED")
+        webapis.avplay.setSelectTrack('AUDIO',audioTrackIndex);
+    }
+    $scope.handleAudioTrackPopup = function () {
+      $rootScope.showAudioTrackPopup = !$rootScope.showAudioTrackPopup
+    }
     function successCallback() {
-        console.log('all good!');
+
         if (webapis.avplay.getState() != "PLAYING")
           webapis.avplay.play();
         else {
@@ -60,6 +82,8 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
         }
         $rootScope.showPlayerLoader = false;
         $scope.$apply();
+        if (webapis.avplay.getState() == "READY" || webapis.avplay.getState() == "PLAYING" || webapis.avplay.getState() == "PAUSED")
+          $scope.handleAudioTracks();
     }
     function errorCallback(error) {
         console.log('prepareAsync errorCallback!');
@@ -71,6 +95,7 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
       $rootScope.channelTemplate = true;
       $rootScope.currentPlayingChannel = channel;
       $rootScope.currentFocusedChannel = channel;
+      $rootScope.moreControlsActive = false;
       if(sideBarChannel)
         $rootScope.currentSideBarFocusedChannel = channel;
       var channelUrl = channel.primary_url;

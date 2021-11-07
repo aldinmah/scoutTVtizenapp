@@ -1,0 +1,51 @@
+<div class="col-xs-12 addAccountPanel">
+    <h1 class="col-xs-12">Add account</h1>
+    <div class="col-xs-6 leftColumn">
+        <div class="regularInputWrapper">
+            <span class="inputLabel">First name</span>
+            <caph-input focusable data-focusable-next-focus-down="field3" data-focusable-next-focus-right="field2" data-focusable-name="field1" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="f_name" value="newAccountData.first_name" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Email</span>
+            <caph-input focusable data-focusable-next-focus-down="field5" data-focusable-next-focus-right="field4" data-focusable-name="field3" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="email" value="newAccountData.email" max-length="150" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message">{{emailErrorMessage}}</span>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Password</span>
+            <caph-input focusable data-focusable-next-focus-down="field7" data-focusable-next-focus-right="field6" data-focusable-name="field5" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="password" value="newAccountData.password" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Parental PIN</span>
+            <caph-input focusable data-focusable-next-focus-down="accountcancelbtn" data-focusable-next-focus-right="field8" data-focusable-name="field7" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="pin" value="newAccountData.pin" max-length="5" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message">{{parental_pinErrorMessage}}</span>
+        </div>
+    </div>
+    <div class="col-xs-6 rightColumn">
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Last name</span>
+            <caph-input focusable focusable data-focusable-next-focus-down="field4" data-focusable-next-focus-left="field1" data-focusable-name="field2" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="l_name" value="newAccountData.last_name" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Username</span>
+            <caph-input focusable data-focusable-next-focus-down="field6" data-focusable-next-focus-left="field3" data-focusable-name="field4" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="username" value="newAccountData.username" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Confirm your password</span>
+            <caph-input focusable data-focusable-next-focus-down="field8" data-focusable-next-focus-left="field5" data-focusable-name="field6" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="confirm_password" value="newAccountData.confirm_password" max-length="150" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message">{{confirm_password_error_message}}</span>
+
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Is kid account?</span>
+            <caph-checkbox focusable data-focusable-next-focus-down="accountsavebtn" data-focusable-next-focus-left="field7" data-focusable-name="field8" data-focusable-group="checkboxWrapper" checked="newAccountData.isKidAccount" on-focused="focusCheckbox($event, $originalEvent)" on-selected="selectCheckbox($event, $checked, $originalEvent)"><span class="checkboxWrapper"><span class="slider round"></span></span></caph-checkbox>
+        </div>
+    </div>
+    <div class="col-xs-12 buttonsWrapper text-right">
+        <caph-button focusable data-focusable-name="accountcancelbtn" on-selected="resetNewAccountInfo($event, $originalEvent)" class="btn btn-secondary cancel-btn">
+            <span>Cancel</span>
+        </caph-button>
+        <caph-button focusable data-focusable-name="accountsavebtn" on-selected="createNewAccount($event, $originalEvent)" class="btn btn-secondary save-btn {{(enableCreateBtn)?'':'disabled'}}">
+            <span>Create</span>
+        </caph-button>
+    </div>
+</div>

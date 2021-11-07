@@ -1,0 +1,59 @@
+<div class="fullScreenTemplateView epgFullView">
+    
+    <div class="col-xs-12 epgListBox">
+        <div class="col-xs-4 verticalEpgChannelList">
+            <div class="col-xs-12 no-padding sideChannelsList epgChannelList">
+                <caph-list container-class="sideChannelsListVertical" items="item in epg" loop="false" direction="vertical" delay="10" duration="0.1s">
+                    <div class="col-xs-12 epgListChannelItem sideChannelVertical" focusable data-focusable-depth="10" id="chitem{{$index}}" data-focusable-name="chitem{{$index}}" on-selected="handleChannelListEPGclick(item)">
+                        <div class="logoBox">
+                            <span class="channelNumber">{{item.channel_number}}.</span>
+                            <img class="epgChannelListLogo" ng-src="{{item.logo}}" alt="" />
+                        </div>
+                        <div class="epgInfoBox">
+                            <span class="channelTitle">{{item.title}}</span>
+                            <div class="epgInfo">
+                                <span class="epgTitle"> {{item.currentEPGProgramme.title ? item.currentEPGProgramme.title : 'No EPG available'}}</span>
+                                <span class="epgTime">{{item.currentEPGProgramme.focusedEpgChannelItemStartEndTime ? item.currentEPGProgramme.focusedEpgChannelItemStartEndTime : ''}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </caph-list> 
+            </div>
+        </div>
+        <div class="col-xs-8 epgData">
+            <div class="epgChannelProgrammeBox no-padding col-xs-12">
+                <div class="epgDetailsBox no-padding col-xs-12">
+                    <div class="col-xs-12 dateBoxWrapper text-center">
+                        <div class="col-xs-12 no-padding dateControls">
+                            <div class="col-xs-3 text-center">
+                                <div class="control-item-wrapper prevEpgButton" focusable data-focusable-depth="10" data-focusable-group="prevEpgButton" data-focusable-name="prevEpgButton" on-selected="loadPrevEpgDate()">
+                                    <p>Previous</p>
+                                </div>
+                            </div>
+                            <div class="col-xs-6 text-center epgDateActiveBox">
+                                <span>{{getActiveEpgDateFormated()}}</span>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <div class="control-item-wrapper nextEpgButton" focusable data-focusable-depth="10" data-focusable-group="nextEpgButton" data-focusable-name="nextEpgButton" on-selected="loadNextEpgDate()">
+                                    <p>Next</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 no-padding text-left channeInfoBoxEPG">
+                            <img src="{{fullViewEpgSelectedChannel.logo}}" alt="" class="epgDetailsLogo">
+                            <span class="channelTitle">{{fullViewEpgSelectedChannel.title}}</span>
+                            <div class="col-xs-3 text-center epgPlayChannelBtnWrapper">
+                                <div class="control-item-wrapper epgPlayChannelBtn" focusable data-focusable-depth="10" data-focusable-group="epgplaychannel" data-focusable-name="epgplaychannel" on-selected="openChannel($event, $originalEvent, {{fullViewEpgSelectedChannel.id}})">
+                                    <p>Play Channel</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-include ng-if="showEpgTemplateTodayBox" src="'App/templates/elements/epgTodayList.html'"></ng-include>
+
+                </div>
+        
+            </div>
+        </div>
+    </div>
+</div>

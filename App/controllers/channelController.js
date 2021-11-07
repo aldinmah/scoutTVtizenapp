@@ -1,8 +1,9 @@
-scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focusController', 'routingService', function ($scope, $rootScope, $timeout, focusController, routingService) {
+scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focusController', 'routingService', 'httpService', function ($scope, $rootScope, $timeout, focusController, routingService, httpService) {
 
   $rootScope.channels = [];
   $scope.filteredChannels = [];
   $scope.favoriteChannels = [];
+  $rootScope.favoriteChannelsGlobal = [];
   $scope.channelCategoriesRaw = [];
   $scope.channelCategories = [];
   $scope.verticalChannelListReady = false;
@@ -14,16 +15,17 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
   $scope.preventEventStacking = false;
 
   $scope.$on('favoriteChannelsLoaded', function (event, args) {
-    $rootScope.loadFavoriteChannelsView = false;
+    //$rootScope.loadFavoriteChannelsView = false;
     if(args.focusOnFavorite)
       $scope.favoriteChannels = [];
+      $rootScope.favoriteChannelsGlobal = [];
 
     $timeout(function () {
       if (args.response.length > 0) {
         $rootScope.loadFavoriteChannelsView = true;
         $rootScope.favoriteChannelsExist = true;
         $scope.favoriteChannels = args.response;
-        
+        $rootScope.favoriteChannelsGlobal = args.response;
       } else {
         $rootScope.loadChannelsView = true;
         $rootScope.favoriteChannelsExist = false;
@@ -45,18 +47,26 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
     if (!error)
       $scope.updateChannelInList(channelId, args.response.status);
 
-    if(args.isFavoriteAdded){
-      var favChannel = $rootScope.getChannelByChannelID(channelId)
-      if(favChannel)
-        $scope.favoriteChannels.push(favChannel)
-        $scope.$apply();
+    var favChannel = $rootScope.getChannelByChannelID(channelId)
+    if(args.isFavoriteAdded && favChannel){
+      $scope.favoriteChannels.push(favChannel)
+      $rootScope.currentFocusedChannel.favorite = favChannel.favorite
     }
+    else
+      $rootScope.currentFocusedChannel.favorite = false
+    $scope.$apply();
 
   });
+  
   $scope.$on('channelsLoaded', function (event, args) {
     $rootScope.channels = args.response;
     $rootScope.loadChannelsView = true;
   });
+
+  $rootScope.onFavoriteChannelChange = function (channelID, isFavorite) {
+    httpService.handleFavoriteChannel(channelID,isFavorite?"true":'false');
+  }
+
   $rootScope.getChannelByChannelID = function (channelID) {
     var channel = null;
     for(var i=0;i<$rootScope.channels.length;i++){
@@ -131,7 +141,7 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
         $scope.loadLiveTVChannelList = true;
       },0)
   };
-
+  /*
   $scope.$on('openChannel', function (event, args) {
     $rootScope.showPlayerLoader = true;
 
@@ -142,6 +152,7 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
       $rootScope.playChannel($rootScope.selectedChannel);
     }, 10);
   });
+  */
   $rootScope.openChannelByChannelID = function (channelID) {
     $scope.openChannel(null,null,channelID)
   }
@@ -149,7 +160,6 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
     $rootScope.focusedSideChannelName = 'sideChannelItem'+index
     let channel = $rootScope.getChannelByChannelID(channelID)
     if(channel){
-      //$rootScope.currentFocusedChannel = channel;
       $rootScope.currentSideBarFocusedChannel = channel;
       $rootScope.$broadcast('updateCurrentSideBarEpg');
     }

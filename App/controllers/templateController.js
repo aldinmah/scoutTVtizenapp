@@ -18,6 +18,15 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     $rootScope.loadLiveTVChannelList = false;
     $rootScope.showSideChannelList = false;
     $rootScope.showChannelInfoBar = false;
+    $rootScope.moreControlsActive = false;
+    $rootScope.showAudioTrackPopup = false;
+    $rootScope.showEpgTemplate = false;
+    $rootScope.showEpgListLoader = false;
+    $rootScope.lastFocusedItem = false;
+    $rootScope.popupIsOpen = false;
+    $rootScope.showEpgReminderPopup = false;
+    $rootScope.showSettingsTemplate = false;
+
     $rootScope.activeTemplate = '';
     $rootScope.focusedSideChannelName = 'sideChannelItem0'
     
@@ -31,7 +40,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             routingService.addRouteToStack("openLoginScreen");
         $rootScope.showLoginTemplate = true;
         $rootScope.showLoginForm = true;
-        
+        $rootScope.activeTemplate = 'Login';
         focusController.setDepth(0);
         focusController.focus('loginUsernameInput');
 
@@ -69,6 +78,12 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.loadLiveTVChannelList = false;
         $rootScope.showSideChannelList = false;
         $rootScope.showChannelInfoBar = false;
+        $rootScope.moreControlsActive = false;
+        $rootScope.showAudioTrackPopup = false;
+        $rootScope.showEpgTemplate = false;
+        $rootScope.showEpgListLoader = false;
+        $rootScope.showSettingsTemplate = false;
+        $rootScope.showSettingsVerticalItems = false;
         if($rootScope.showPlayerTemplate)
           $rootScope.hidePlayerTemplate();
     }
@@ -87,6 +102,14 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             case 'liveTV':
                 $rootScope.showLoader = true;
                 $scope.openLiveTVTemplate(false);
+                break;
+            case 'epg':
+                $rootScope.showLoader = true;
+                $scope.openEpgTemplate(false);
+                break;
+            case 'settings':
+                $rootScope.showLoader = true;
+                $scope.openSettingsTemplate(false);
                 break;
             default:
                 break;
@@ -116,7 +139,48 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             default: break
         }
     };
+    $rootScope.showMoreOptions = function ($event, $originalEvent) {
+        $rootScope.moreControlsActive = true;
+        $timeout(function () {
+            focusController.setDepth(5)
+            focusController.focus('moreInfoBtnBack0') 
+        },100)
+        
+    }
+    $rootScope.hideMoreOptions = function ($event, $originalEvent) {
+        $rootScope.moreControlsActive = false;
+        $timeout(function () {
+            focusController.setDepth(4)
+            focusController.focus('infoBarAnchor')
+        },100)
+    }
+
+    $scope.beforeEventBound = false
     $rootScope.$on('keydownEvent', function (item, event) {
+        /*
+        if($scope.beforeEventBound == false){
+            focusController.addBeforeKeydownHandler(function () {
+                console.log('DEBUG PURPOSE ONLY, REMOVE THIS PART OF CODE. focusControler line 156');
+                $scope.beforeEventBound = true
+                var focusGroup = focusController.getCurrentGroup()
+                if(event.keyCode == 38 && focusGroup=='homeallchannels'){
+                    if($rootScope.favoriteChannelsGlobal.length){
+                        console.log('focusing on FAV 0');
+                        focusController.focus('favoriteChannel0')
+                    }
+                    else if($rootScope.highlightedItems.length){
+                        console.log('focusing on HIGH 0');
+                        focusController.focus('highLightedItem0')
+                    }
+                    else{
+                        console.log('focusing on MENU 0');
+                        focusController.focus('menuItem0')
+                    }
+                }
+            })
+        }
+        */
+
         /*Help bar control*/
         var activeItem = $(focusController.getCurrentFocusItem());
         if(activeItem.data("channelitem")){
@@ -130,14 +194,50 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
           }
           $rootScope.showHelpBar = true;
         }
+        else if($rootScope.showEpgTemplate){
+            $rootScope.showHelpBar = true;
+        }
         else
           $rootScope.showHelpBar = false;
 
         var dataFocusableGroup = focusController.getCurrentGroup()
         var dataFocusableDepth = focusController.getCurrentDepth()
 
-        console.log('focus depth = ',focusController.getCurrentDepth());
-        console.log('activeItem.data("playerfocus") = ',activeItem.data("playerfocus"));
+        //console.log(activeItem.html())
+        //console.log(dataFocusableDepth);
+        //console.log(dataFocusableGroup);
+        //console.log('event.keyCode = ',event.keyCode);
+        //console.log('$rootScope.lastFocusedDepth ',$rootScope.lastFocusedDepth);
+        //console.log('$rootScope.lastFocusedItem ',$rootScope.lastFocusedItem);
+        
+        if($rootScope.activeTemplate == "Settings"){
+            if(activeItem.attr('data-focusable-name')=='field8' && event.keyCode==37){
+                $rootScope.$broadcast('forceParentalPinFocus')
+            }
+        }
+
+        if($rootScope.showEpgReminderPopup && dataFocusableDepth !=20){
+            focusController.setDepth(20)
+            $timeout(function () {
+                focusController.focus("remindergochannelbtn");
+            },100)
+        }
+
+        if($rootScope.activeTemplate == 'EPG' && dataFocusableDepth !=10){
+            if($rootScope.showEpgReminderPopup){
+                focusController.setDepth(20)
+                $timeout(function () {
+                    focusController.focus("remindergochannelbtn");
+                },100)
+            }
+            else{
+                focusController.setDepth(10)
+                $timeout(function () {
+                    focusController.focus("chitem0");
+                },100)
+            }
+            
+        }
 
         //Player focus depth 2, focus on player
         if(dataFocusableDepth==2){
@@ -157,20 +257,60 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         else if(dataFocusableDepth==4){
             switch (event.keyCode) {
                 case 39:
-                    $rootScope.$broadcast('updateNextEpgData');
+                    if(dataFocusableGroup=="infoBarAnchor")
+                        $rootScope.$broadcast('updateNextEpgData');
                     break;
                 case 37:
-                    $rootScope.$broadcast('updatePreviousEpgData');
+                    if(dataFocusableGroup=="infoBarAnchor")
+                        $rootScope.$broadcast('updatePreviousEpgData');
                     break;
                 case 38:
+                    $timeout(function () {
+                        if($rootScope.moreControlsActive){
+                            focusController.setDepth(5)
+                            focusController.focus('moreInfoBtnBack0')
+                        }
+                        else
+                            focusController.focus('moreInfoBtn0')
+                    },0)
+                    //$rootScope.moreControlsActive = true;
+                    break;
                 case 427:
-                    $rootScope.$broadcast('selectedEpgChannelDown');
-                    $rootScope.playChannel($rootScope.currentFocusedChannel);
+                    if(dataFocusableGroup=="infoBarAnchor"){
+                        $rootScope.$broadcast('selectedEpgChannelDown');
+                        $rootScope.playChannel($rootScope.currentFocusedChannel);
+                    }
                     break;
                 case 40:
+                    $timeout(function () {
+                        if($rootScope.moreControlsActive){
+                            focusController.setDepth(5)
+                            focusController.focus('moreInfoBtnBack0')
+                        }
+                        else{
+                            focusController.setDepth(4)
+                            focusController.focus('infoBarAnchor')
+                        }
+                    },0)
+                    //$rootScope.moreControlsActive = false;
+                    break;
                 case 428:
-                    $rootScope.$broadcast('selectedEpgChannelUp');
-                    $rootScope.playChannel($rootScope.currentFocusedChannel);
+                    if(dataFocusableGroup=="infoBarAnchor"){
+                        $rootScope.$broadcast('selectedEpgChannelUp');
+                        $rootScope.playChannel($rootScope.currentFocusedChannel);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if(dataFocusableDepth==10){
+            switch (event.keyCode) {
+                case 39:
+                    
+                    break;
+                case 40:
+                    
                     break;
                 default:
                     break;
@@ -211,7 +351,30 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                     break;
                 }
                 else if(dataFocusableDepth!=2){
-                    routingService.openPreviousTemplate();
+                    if(dataFocusableDepth==5 || dataFocusableDepth==4){
+                        $rootScope.moreControlsActive = false;
+                        $rootScope.showAudioTrackPopup = false;
+                        $rootScope.showChannelInfoBar = false;
+                        focusController.setDepth(2)
+                        focusController.focus("playerFocusAnchor");
+                    }
+                    else if(dataFocusableDepth==10 && dataFocusableGroup=="epgListItem"){
+                        focusController.focus('epgplaychannel')
+                    }
+                    else if(dataFocusableDepth==20){
+                        $rootScope.deleteReminderFromPopup($rootScope.activeEpgReminder.id)
+                    }
+                    else if(dataFocusableDepth==9){
+                        $rootScope.closeDevicePopup()
+                    }
+                    else{
+                        if($rootScope.activeTemplate == 'Home'){
+                            console.log('Home active exit app');
+                            $scope.exitApp()
+                        }
+                        else if($rootScope.activeTemplate != "Settings")
+                            routingService.openPreviousTemplate();
+                    }
                 }
                 break;
             case tizen.tvinputdevice.getKey('ColorF0Red').code:
@@ -238,6 +401,66 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                 break;
         }
 
+        if ($rootScope.showEpgTemplate) {
+            var currentFocusedItem = focusController.getCurrentFocusItem();
+
+            if ($(currentFocusedItem).data("focustype") == "epgtitle") {
+                if (event.keyCode == 39) {
+                    //angular.element(currentFocusedItem).triggerHandler('keydown');
+                    $rootScope.$broadcast("triggerRightKey", {
+                        myelem: $(currentFocusedItem)
+                    })
+                } else if (event.keyCode == 37) {
+                    //angular.element(currentFocusedItem).triggerHandler('keydown');
+                    $rootScope.$broadcast("triggerLeftKey", {
+                        myelem: $(currentFocusedItem)
+                    })
+                }
+                else if(event.keyCode == tizen.tvinputdevice.getKey('ColorF2Yellow').code){
+                  var epgchannelid = $rootScope.currentFocusedEpgElement.data("epgchannelid");
+                  var epgprogrammeid = $rootScope.currentFocusedEpgElement.data("epgprogrammeid");
+                  var hasReminder = $rootScope.currentFocusedEpgElement.data("hasreminder");
+                  var reminderstringid = $rootScope.currentFocusedEpgElement.data("reminderstringid");
+                  var channelid = 0;
+                  var reminder_id = 0;
+                  var reminderMinutes = configService.epgReminderMinutes;
+
+                  for(var i=0;i<$rootScope.channels.length;i++){
+                    if($rootScope.channels[i].epg_channel_id == epgchannelid)
+                      channelid = $rootScope.channels[i].id;
+                  }
+                  if(channelid && epgprogrammeid && ($rootScope.addReminderBtn || $rootScope.removeReminderBtn)){
+                    if(hasReminder){
+                      for(var i=0;i<$rootScope.epgReminders.length;i++){
+                        if($rootScope.epgReminders[i].string_id == reminderstringid)
+                          reminder_id = $rootScope.epgReminders[i].id;
+                      }
+                      httpService.deleteEpgReminder(reminder_id,true,epgprogrammeid);
+                    }
+                    else
+                      httpService.addEpgReminder(channelid, epgchannelid, epgprogrammeid,configService.epgReminderMinutes, true);
+                  }
+
+
+                }
+                else if(event.keyCode == tizen.tvinputdevice.getKey('ColorF3Blue').code){
+                  var channel = 0;
+                  var epgchannelid = $rootScope.currentFocusedEpgElement.data("epgchannelid");
+                  $rootScope.goToChannelSelection = $rootScope.getChannelByEpgChannelId(epgchannelid);
+                  //$scope.openPlayerTemplate(true,true,channel);
+                  if($rootScope.goToChannelSelection.parental_rating && $rootScope.goToChannelSelection.parental_rating.require_pin)
+                  {
+                    $scope.openParentalPinPopup(true);
+                  }else{
+                    $rootScope.$broadcast('Invoke-openPlayerTemplate', {
+                        skipRouteStack: true
+                    });
+                    $rootScope.playChannel($rootScope.goToChannelSelection);
+                  }
+                }
+            }
+        }
+
         if (event.keyCode == 13) {
             event.preventDefault();
             return false;
@@ -247,14 +470,12 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     });
     
     $scope.openHomeTemplate = function (skipRouteStack) {
-        console.log('openHomeTemplate');
         if (!skipRouteStack)
             routingService.addRouteToStack("openHomeTemplate");
         focusController.setDepth(0);
         $scope.hideAllTemplates();
         $rootScope.showMainTemplate = true;
         $rootScope.showHomeTemplate = true;
-        focusController.setDepth(0);
         $rootScope.activeTemplate = 'Home';
         $rootScope.showLoader = false;
         $rootScope.$broadcast('refreshCurrentTime');
@@ -273,7 +494,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             $('.mainContentBox').css({top:0})
         }, 150);
     };
-    $scope.$on('Invoke-openHomeTemplate', function (event, args) {
+    $rootScope.$on('Invoke-openHomeTemplate', function (event, args) {
         var skipRouteStack = false;
         if (args && args.skipRouteStack)
             skipRouteStack = args.skipRouteStack;
@@ -281,7 +502,6 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     });
 
     $scope.openLiveTVTemplate = function (skipRouteStack) {
-        console.log('openLiveTVTemplate');
         if (!skipRouteStack)
             routingService.addRouteToStack("openLiveTVTemplate");
         $scope.hideAllTemplates();
@@ -302,13 +522,13 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             focusController.focus("liveTVChannelCategoryItem0");
         }, 1000);
     };
-    $scope.$on('Invoke-openLiveTVTemplate', function (event, args) {
+    $rootScope.$on('Invoke-openLiveTVTemplate', function (event, args) {
         var skipRouteStack = false;
         if (args && args.skipRouteStack)
             skipRouteStack = args.skipRouteStack;
         $scope.openLiveTVTemplate(skipRouteStack);
     });
-    $scope.$on('Invoke-openPlayerTemplate', function (event, args) {
+    $rootScope.$on('Invoke-openPlayerTemplate', function (event, args) {
         var skipRouteStack = false;
         if (args && args.skipRouteStack)
             skipRouteStack = args.skipRouteStack;
@@ -319,6 +539,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             routingService.addRouteToStack("openPlayerTemplate");
         $scope.hideAllTemplates();
 
+        $rootScope.activeTemplate = 'Player';
         $(".videoTemplateWrapper").show();
         $("#av-player").show();
         $rootScope.showPlayerTemplate = true;
@@ -355,13 +576,69 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
 
         $rootScope.$broadcast('updateCurrentEpg');
         $rootScope.showChannelInfoBar = true;
-
+        $rootScope.moreControlsActive = false;
+        $rootScope.showAudioTrackPopup = false;
         $timeout(function () {
             focusController.setDepth(4);
             focusController.focus("infoBarAnchor")
-
         }, 200);
     };
+    $rootScope.openEpgReminderPopup = function (){
+        $rootScope.showEpgReminderPopup = true;
+        $rootScope.lastFocusedItem = focusController.getCurrentFocusItem();
+        $rootScope.lastFocusedDepth = focusController.getCurrentDepth();
+        $rootScope.popupIsOpen = true;
+        $timeout(function () {
+          focusController.setDepth(20);
+          focusController.focus("remindergochannelbtn");
+        }, 300);
+      }
+    $scope.openEpgTemplate = function (skipRouteStack) {
+        if (!skipRouteStack)
+            routingService.addRouteToStack("openEpgTemplate");
+        
+        $rootScope.showEpgTemplate = true;
+        $rootScope.showEpgTemplateTodayBox = true;
+        $rootScope.activeTemplate = 'EPG';
+        $rootScope.showHelpBar = false;
+        $rootScope.addToFavoritesHelpButton = false;
+        $rootScope.removeFromFavoritesHelpButton = false;
+        $timeout(function () {
+            focusController.setDepth(10);
+            focusController.focus("chitem0");
+            $rootScope.initEpgLoadDetails()
+        }, 500);
+    };
+    $rootScope.showEpgTemplateTodayBox = false;
+    $rootScope.refreshEPGTemplate = function () {
+        $rootScope.showEpgTemplateTodayBox = true;
+    }
+
+    $scope.openSettingsTemplate = function (skipRouteStack) {
+        console.log('openSettingsTemplate');
+        if (!skipRouteStack)
+            routingService.addRouteToStack("openSettingsTemplate");
+        focusController.setDepth(0);
+        $scope.hideAllTemplates();
+        $rootScope.showLoader = false;
+        $rootScope.showMainTemplate = true;
+        $rootScope.showSettingsTemplate = true;
+        $rootScope.activeTemplate = 'Settings';
+        $rootScope.$broadcast('refreshCurrentTime');
+        $rootScope.openInitSettingsPanel()
+        $timeout(function () {
+            $rootScope.showActiveTemplateInMenuBox = false;
+            $rootScope.showMainMenu = true;
+            focusController.focus('settingsItem0')
+        }, 50);
+    };
+    $rootScope.$on('Invoke-openSettingsTemplate', function (event, args) {
+        var skipRouteStack = false;
+        if (args && args.skipRouteStack)
+            skipRouteStack = args.skipRouteStack;
+        $scope.openSettingsTemplate(skipRouteStack);
+    });
+
     $scope.exitApp = function(){
       tizen.application.getCurrentApplication().exit();
     }

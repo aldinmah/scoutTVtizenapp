@@ -1,0 +1,42 @@
+<div class="col-xs-12 addBillingPanel">
+    <h1 class="col-xs-12">Billing information</h1>
+    <div class="col-xs-6 leftColumn">
+        <div class="regularInputWrapper">
+            <span class="inputLabel">First name</span>
+            <caph-input focusable data-focusable-next-focus-down="fieldb3" data-focusable-next-focus-right="fieldb2" data-focusable-name="fieldb1" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="billing_first_name" value="accountData.account.billing_first_name" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Email</span>
+            <caph-input focusable data-focusable-next-focus-down="fieldb7" data-focusable-next-focus-right="countryselector" data-focusable-name="fieldb3" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="billing_email" value="accountData.account.billing_email" max-length="150" class="regularInput"></caph-input>
+            <span class="col-xs-12 no-padding error-validation-message">{{emailErrorMessage}}</span>
+        </div>
+
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Address</span>
+            <caph-input focusable data-focusable-next-focus-down="accountcancelbtn" data-focusable-next-focus-right="accountcancelbtn" data-focusable-name="fieldb7" on-changed="change($event,value)" on-selected="focusAndMoveFormUp($event, $originalEvent)" on-blurred="onBlur($event, $originalEvent)" title="billing_address" value="accountData.account.billing_address" max-length="150" class="regularInput"></caph-input>
+        </div>
+    </div>
+    <div class="col-xs-6 rightColumn">
+        <div class="regularInputWrapper">
+            <span class="inputLabel">Last name</span>
+            <caph-input focusable focusable data-focusable-next-focus-down="countryselector" data-focusable-next-focus-left="fieldb1" data-focusable-name="fieldb2" on-changed="change($event,value)" on-selected="focus($event, $originalEvent)" title="billing_last_name" value="accountData.account.billing_last_name" max-length="150" class="regularInput"></caph-input>
+        </div>
+        <div class="regularInputWrapper countryWrapper">
+            <span class="inputLabel">Country</span>
+            <div focusable data-focusable-next-focus-down="accountsavebtn" data-focusable-next-focus-left="fieldb3" data-focusable-name="countryselector" on-selected="handleCountryListPopup($event, $originalEvent)" class="regularInput countryDropdown">{{accountData.account.billing_country_name?accountData.account.billing_country_name:'Select country...'}}</div>
+            <div class="countryListWrapper" ng-if="showCountryListPopup">
+                <div ng-repeat="item in countriesList" class="countryItem" data-focusable-name="countryItem{{$index}}" data-focusable-next-focus-up="countryItem{{$index-1}}" data-focusable-next-focus-down="countryItem{{$index+1}}" focusable on-selected="changeCountry($event, $originalEvent, item)">
+                    <span class="trackName">{{($index+1)}}. {{item.name}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 buttonsWrapper text-right">
+        <caph-button focusable data-focusable-name="accountcancelbtn" on-selected="resetNewAccountInfo($event, $originalEvent)" class="btn btn-secondary cancel-btn">
+            <span>Cancel</span>
+        </caph-button>
+        <caph-button focusable data-focusable-name="accountsavebtn" on-selected="saveAccountBillingInfoChanges($event, $originalEvent)" class="btn btn-secondary save-btn {{(enableBillingSaveBtn)?'':'disabled'}}">
+            <span>Save</span>
+        </caph-button>
+    </div>
+</div>

@@ -1,8 +1,9 @@
 scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusController', 'configService', 'httpService', 'storageService', 'routingService', function ($scope, $rootScope, $timeout, focusController, configService, httpService, storageService, routingService) {
 
     $rootScope.removeLoginScreen = false;
-    $scope.username = "aldin";
-    $scope.password = "tizenapp";
+    $scope.username = "aldinMain";
+    $scope.password = "qqqq";
+    $rootScope.existingPassword = "qqqq";
     //$scope.username = "";
     //$scope.password = "";
     $scope.forgotPasswordEmail = '';
@@ -40,7 +41,7 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
         if ($scope.username.length && $scope.password.length) {
             $rootScope.showLoader = true;
             //var uid = webapis.network.getMac();
-            var uid = '6a2d8e717d47e3874ca7aa3f8b08e2f4'
+            var uid = '6a2d8e717d47e3874ca7aa3f8b08e2f6'
             var hash = window.btoa($scope.username + ":" + $scope.password);
             httpService.login(hash, uid);
         }
@@ -58,8 +59,12 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
         }, 10);
     }
     $scope.$on('loginSuccess', function (event, args) {
+        console.log('loginSuccess');
+        console.log(args.response);
+    
         storageService.set("user-data", args.response);
         $rootScope.loggedUser = args.response;
+        $rootScope.loggedUser.existingPassword = $scope.password
         $rootScope.userToken = args.response.device.token;
         $rootScope.showLoginTemplate = false;
         $scope.loginErrorMsg = false;

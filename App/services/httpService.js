@@ -116,11 +116,12 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
 
     function getHighlighted() {
         //debug, mock data
+        /*
         $rootScope.$broadcast('highlightedLoaded', {
             response: globalService.MockData.highlightContent
         });
         return;
-
+        */
         var req = {
             method: 'GET',
             url: configService.ApiCollection.highlightContent,
@@ -198,8 +199,8 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
                     error: false,
                     isFavoriteAdded : !isRemoveFavorite
                 });
-                if(isRemoveFavorite)
-                    getFavoriteChannels(isRemoveFavorite);
+                getFavoriteChannels(isRemoveFavorite);
+                    
             } else {
                 $rootScope.$broadcast('handleFavoritesResponse', {
                     error: true
@@ -262,7 +263,44 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
             });
         });
     }
+    function getDayEpgByChannelID(filter, fromTimestamp, channelID) {
+        var startTimestamp = new Date(fromTimestamp*1000);
+        startTimestamp.setUTCHours(0,0,0,0);
+        startTimestamp = parseInt(startTimestamp.getTime()/1000)
+        var apiUrl = configService.ApiCollection.Epg;
+        var to_timestamp = startTimestamp + (60 * 60 * 24);
 
+        if (filter)
+            apiUrl += "?filter[from_timestamp]=" + startTimestamp + "&filter[to_timestamp]=" + to_timestamp;
+        if(channelID)
+            apiUrl += "&filter[id]="+channelID
+        var req = {
+            method: 'POST',
+            url: apiUrl,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('epgChannelListUpdated', {
+                    response: response.data.data,
+                    channelID: channelID
+                });
+            
+            } else {
+                $rootScope.$broadcast('epgChannelListUpdated', {
+                    response: [],
+                    channelID: channelID
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('epgChannelListUpdated', {
+                response: [],
+                channelID: channelID
+            });
+        });
+    }
     function getEpg(filter, from, to) {
         var apiUrl = configService.ApiCollection.Epg;
         var fromFilter = '';
@@ -273,6 +311,7 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
             toFilter = timeDateService.getCurrentTimeFormatedForEpg(Math.abs(to));
         if (filter)
             apiUrl += "?filter[from]=" + fromFilter + "&filter[to]=" + toFilter;
+
         var req = {
             method: 'POST',
             url: apiUrl,
@@ -297,12 +336,298 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         });
     }
 
+    function addEpgReminder(channel_id, epg_channel_id, epg_programme_id, remind_me_minutes, epgView) {
+        var apiUrl = configService.ApiCollection.addEpgReminder;
+
+        var postData = new FormData();
+		postData.append('channel_id', channel_id);
+		postData.append('epg_channel_id', epg_channel_id);
+		postData.append('epg_programme_id', epg_programme_id);
+		postData.append('remind_me', remind_me_minutes);
+        axios({
+			method: 'post',
+			url: apiUrl,
+			data: postData,
+			headers: {
+				'Token': $rootScope.userToken,
+			}
+		}).then((response)=>{
+            if (response.status == 200 && response.data.data) {
+                getEpgReminders();
+                $rootScope.$broadcast('epgReminderAdded', {
+                    response: response.data.data,
+                    epgView: epgView
+                });
+            } else {
+                $rootScope.$broadcast('epgReminderAdded', {
+                    response: [],
+                });
+            }
+		}).catch((err)=>{
+            $rootScope.$broadcast('epgReminderAdded', {
+                response: [],
+            });
+			return err;
+		});
+    }
+    function deleteEpgReminder(reminderId,epgView) {
+        var apiUrl = configService.ApiCollection.deleteEpgReminder;
+        var postData = new FormData();
+		postData.append('id', reminderId);
+        axios({
+			method: 'post',
+			url: apiUrl,
+			data: postData,
+			headers: {
+				'Token': $rootScope.userToken,
+			}
+		}).then((response)=>{
+            if (response.status == 200 && response.data.data) {
+                getEpgReminders();
+                $rootScope.$broadcast('epgReminderDeleted', {
+                    response: response.data.data,
+                    epgView: epgView
+                });
+            } else {
+                $rootScope.$broadcast('epgReminderDeleted', {
+                    response: [],
+                });
+            }
+		}).catch((err)=>{
+            $rootScope.$broadcast('epgReminderDeleted', {
+                response: [],
+            });
+			return err;
+		});
+    }
+
+    function getEpgReminders() {
+        var apiUrl = configService.ApiCollection.getEpgReminders;
+        var req = {
+            method: 'POST',
+            url: apiUrl,
+            headers: {
+                'Token': $rootScope.userToken
+            },
+        }
+
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('epgRemindersLoaded', {
+                    response: response.data.data,
+                });
+            } else {
+                $rootScope.$broadcast('epgRemindersLoaded', {
+                    response: [],
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('epgRemindersLoaded', {
+                response: [],
+            });
+        });
+    }
+
+    function updateAccountData(accountData) {
+        var apiUrl = configService.ApiCollection.UpdateProfile;
+
+        var postData = new FormData();
+        if(accountData.profile.first_name)
+		    postData.append('first_name', accountData.profile.first_name);
+
+        if(accountData.profile.last_name)
+		    postData.append('last_name', accountData.profile.last_name);
+
+        if(accountData.profile.email)
+		    postData.append('email', accountData.profile.email);
+
+        if(accountData.profile.username)
+		    postData.append('username', accountData.profile.username);
+
+        if(accountData.profile.age)
+		    postData.append('age', accountData.profile.age);
+        
+        if(accountData.profile.sex)
+		    postData.append('sex', accountData.profile.sex);
+
+        if(accountData.profile.pin)
+		    postData.append('pin', accountData.profile.pin);
+
+        if(accountData.account.purchase_pin)
+		    postData.append('purchase_pin', accountData.account.purchase_pin);
+
+        if(accountData.account.billing_first_name)
+		    postData.append('billing_first_name', accountData.account.billing_first_name);
+
+        if(accountData.account.billing_email)
+		    postData.append('billing_email', accountData.account.billing_email);
+
+        if(accountData.account.billing_address)
+		    postData.append('billing_address', accountData.account.billing_address);
+
+        if(accountData.account.billing_last_name)
+		    postData.append('billing_last_name', accountData.account.billing_last_name);
+
+        if(accountData.account.billing_country_name)
+		    postData.append('billing_country_name', accountData.account.billing_country_name);
+        if(accountData.account.billing_country_id)
+		    postData.append('billing_country_id', accountData.account.billing_country_id);
+
+        axios({
+			method: 'post',
+			url: apiUrl,
+			data: postData,
+			headers: {
+				'Token': $rootScope.userToken,
+			}
+		}).then((response)=>{
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('accountDataUpdated', {response: response.data});
+                    
+            } else {
+                $rootScope.$broadcast('accountDataUpdated', {response: []});
+
+            }
+		}).catch((err)=>{
+            $rootScope.$broadcast('accountDataUpdated', {response: []});
+			return err;
+		});
+    }
+    function createProfile(accountData) {
+        var apiUrl = configService.ApiCollection.CreateProfile;
+
+        var postData = new FormData();
+        if(accountData.first_name)
+		    postData.append('first_name', accountData.first_name);
+
+        if(accountData.last_name)
+		    postData.append('last_name', accountData.last_name);
+
+        if(accountData.email)
+		    postData.append('email', accountData.email);
+
+        if(accountData.username)
+		    postData.append('username', accountData.username);
+        
+        if(accountData.pin)
+		    postData.append('pin', accountData.pin);
+
+        if(accountData.isKidAccount)
+		    postData.append('kid', accountData.isKidAccount);
+        
+        if(accountData.password)
+		    postData.append('password', accountData.password);
+            
+        axios({
+			method: 'post',
+			url: apiUrl,
+			data: postData,
+			headers: {
+				'Token': $rootScope.userToken,
+			}
+		}).then((response)=>{
+            if (response.status == 200 && response.data.data) {
+                
+                $rootScope.$broadcast('accountProfileCreated', {response: response.data});
+                    
+            } else {
+                $rootScope.$broadcast('accountProfileCreated', {response: []});
+
+            }
+		}).catch((err)=>{
+            $rootScope.$broadcast('accountProfileCreated', {response: []});
+			return err;
+		});
+    }
+    function getAllDevices() {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.GetAllDevices,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('allDevicesLoaded', {
+                    response: response.data.data
+                });
+            } else {
+                $rootScope.$broadcast('allDevicesLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('allDevicesLoaded', {
+                response: []
+            });
+        });
+    }
+    function getPaymentHistory() {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.PaymentHistory,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('paymentHistoryLoaded', {
+                    response: response.data.data.items
+                });
+            } else {
+                $rootScope.$broadcast('paymentHistoryLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('paymentHistoryLoaded', {
+                response: []
+            });
+        });
+    }
+    function getCountries() {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.Countries,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                var countriesObject = response.data.data
+                var countryList = []
+                Object.keys(countriesObject).map((key) => {
+                    countryList.push({
+                        value:Number(key),
+                        name:countriesObject[key]
+                    })
+                });
+                $rootScope.$broadcast('countriesLoaded', {
+                    response: countryList
+                });
+            } else {
+                $rootScope.$broadcast('countriesLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('countriesLoaded', {
+                response: []
+            });
+        });
+    }
+    
     function initAPICall() {
         getHighlighted()
         getChannels()
         getChannelCategories()
         getFavoriteChannels()
-        getEpg(true, 1, 2);
+        getEpg(true, 1, 2),
+        getEpgReminders(),
+        getCountries()
     }
     return {
         login: login,
@@ -311,6 +636,15 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         forgotPassword: forgotPassword,
         getChannels: getChannels,
         handleFavoriteChannel: handleFavoriteChannel,
-        initAPICall: initAPICall
+        initAPICall: initAPICall,
+        getEpg: getEpg,
+        getDayEpgByChannelID: getDayEpgByChannelID,
+        addEpgReminder: addEpgReminder,
+        deleteEpgReminder: deleteEpgReminder,
+        getEpgReminders: getEpgReminders,
+        updateAccountData: updateAccountData,
+        getAllDevices: getAllDevices,
+        createProfile: createProfile,
+        getPaymentHistory: getPaymentHistory
     }
 });

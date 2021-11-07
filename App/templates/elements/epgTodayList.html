@@ -1,0 +1,20 @@
+<div class="col-xs-12 no-padding epgProgrammeList" ng-show="showEpgProgrammeList">
+    <caph-list id="epgFullTodayList" container-class="programmeBoxWrapper" items="item in fullViewEpgSelectedChannel.programmes" loop="false" direction="vertical" initial-item-index="{{currentEpgProgrammeIndexFullEPGList}}" delay="10" duration="0.1s">
+        <div ng-show="item.id?true:false" class="col-xs-12 programmeBox {{currentEpgProgrammeIndexFullEPGList==$index?'currentProgrammeActive':''}}" focusable data-focusable-depth="10" data-focusable-name="epgProgramme{{$index}}" data-focusable-group="epgListItem" on-selected="handleEPGReminder(item)">
+            <span class="col-xs-12 channelEpgTitle">
+                <img class="bellIcon" ng-src="/App/assets/images/bell.svg" alt="" ng-if="item.hasReminder"/>
+                <span class="channelEpgTime">{{item.startEndTimeString}}</span>
+                {{item.title}} 
+            </span>
+            
+            <span class="col-xs-12 channelEpgDescription">{{item.desc.length>0?item.desc:'No description available.'}}</span>
+            <div ng-if="item.showReminderButton" class="control-item-wrapper addReminderBtnEpg">
+                <p>{{item.hasReminder?'Remove Reminder':'Add Reminder'}}</p>
+            </div>
+        </div>
+    </caph-list> 
+</div>
+<div class="col-xs-12 no-padding epgProgrammeList noEPGData" ng-if="!showEpgProgrammeList">
+    No EPG data available.
+</div>
+<div class="popup-wrapper loading epgListLoader" ng-if="showEpgListLoader"></div>
