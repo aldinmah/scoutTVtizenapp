@@ -37,29 +37,25 @@
                 <div class="control-item">
                     <svg width="60" height="60" viewBox="0 0 60 60">
                         <g fill="none" fill-rule="evenodd">
-                            <path d="M14 14h32v32H14z"></path>
-                            <path fill="#FFF"
-                                d="M30 37.027L38.24 42l-2.187-9.373 7.28-6.307-9.586-.813L30 16.667l-3.747 8.84-9.586.813 7.28 6.307L21.76 42z">
+                            <path d="M30 37.027L38.24 42l-2.187-9.373 7.28-6.307-9.586-.813L30 16.667l-3.747 8.84-9.586.813 7.28 6.307L21.76 42z">
                             </path>
                         </g>
                     </svg>
                 </div>
                 <p>{{currentFocusedChannel.favorite ? 'Remove from favorites' : 'Add to favorites'}}</p>
             </div>
-            <div class="control-item-wrapper" focusable data-focusable-depth="5" ng-if="showAddReminderBtn">
+            <div class="control-item-wrapper" focusable data-focusable-depth="5" ng-if="showAddReminderBtn" on-selected="handleEPGReminder(currentEpg, true)">
                 <div class="control-item">
                     <svg width="60" height="60" viewBox="0 0 60 60">
                         <g fill="none" fill-rule="evenodd">
-                            <path d="M14 14h32v32H14z"></path>
-                            <path fill="#FFF"
-                                d="M24.107 19.44L22.2 17.533c-3.2 2.44-5.307 6.2-5.493 10.467h2.666a11.26 11.26 0 0 1 4.734-8.56zM40.627 28h2.666c-.2-4.267-2.306-8.027-5.493-10.467l-1.893 1.907a11.327 11.327 0 0 1 4.72 8.56zM38 28.667c0-4.094-2.187-7.52-6-8.427v-.907c0-1.106-.893-2-2-2s-2 .894-2 2v.907c-3.827.907-6 4.32-6 8.427v6.666L19.333 38v1.333h21.334V38L38 35.333v-6.666zm-8 14.666c.187 0 .36-.013.533-.053a2.705 2.705 0 0 0 1.92-1.573c.134-.32.2-.667.2-1.04H27.32A2.686 2.686 0 0 0 30 43.333z">
+                            <path d="M24.107 19.44L22.2 17.533c-3.2 2.44-5.307 6.2-5.493 10.467h2.666a11.26 11.26 0 0 1 4.734-8.56zM40.627 28h2.666c-.2-4.267-2.306-8.027-5.493-10.467l-1.893 1.907a11.327 11.327 0 0 1 4.72 8.56zM38 28.667c0-4.094-2.187-7.52-6-8.427v-.907c0-1.106-.893-2-2-2s-2 .894-2 2v.907c-3.827.907-6 4.32-6 8.427v6.666L19.333 38v1.333h21.334V38L38 35.333v-6.666zm-8 14.666c.187 0 .36-.013.533-.053a2.705 2.705 0 0 0 1.92-1.573c.134-.32.2-.667.2-1.04H27.32A2.686 2.686 0 0 0 30 43.333z">
                             </path>
                         </g>
                     </svg>
                 </div>
                 <p>{{currentEpg.hasReminder ? 'Remove reminder' : 'Add reminder'}}</p>
             </div>
-            <div class="control-item-wrapper" focusable data-focusable-depth="5" on-selected="handleAudioTrackPopup()">
+            <div class="control-item-wrapper audiotrackbtn" focusable data-focusable-depth="5" on-selected="handleAudioTrackPopup()">
                 <div class="audioTracksWrapper" ng-if="showAudioTrackPopup">
                         <div ng-repeat="item in audioTracks" class="audioTrackItem" data-focusable-name="audioTrackItem{{$index}}" focusable data-focusable-depth="5" on-selected="changeAudioTrack(item.index)">
                             <span class="trackName">{{($index+1)}}. {{item.extra_info.language}}</span>

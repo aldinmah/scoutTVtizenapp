@@ -13,9 +13,12 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     $rootScope.loadChannelsView = false;
     $rootScope.showLiveTVTemplate = false;
     $rootScope.showLiveTVTemplateItems = false;
+    $rootScope.showSearchTemplateItems = false;
+    $rootScope.showSearchTemplate = false;
     $rootScope.loadChannelCategoriesView = false;
     $rootScope.favoriteChannelsExist = false;
     $rootScope.loadLiveTVChannelList = false;
+    $rootScope.loadSearchChannelList = false;
     $rootScope.showSideChannelList = false;
     $rootScope.showChannelInfoBar = false;
     $rootScope.moreControlsActive = false;
@@ -26,9 +29,11 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     $rootScope.popupIsOpen = false;
     $rootScope.showEpgReminderPopup = false;
     $rootScope.showSettingsTemplate = false;
-
+    $rootScope.showParentalPINPopup = false;
+    $rootScope.showPurchasePINPopup = false;
+    $rootScope.purchasePin = ''
     $rootScope.activeTemplate = '';
-    $rootScope.focusedSideChannelName = 'sideChannelItem0'
+    $rootScope.focusedSideChannelName = 'sideChannelItem0';
     
     /*Help bar buttons*/
     $rootScope.showHelpBar = false;
@@ -38,6 +43,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     $scope.openLoginScreen = function (skipRouteStack) {
         if (!skipRouteStack)
             routingService.addRouteToStack("openLoginScreen");
+        $rootScope.removeLoginScreen = false;
         $rootScope.showLoginTemplate = true;
         $rootScope.showLoginForm = true;
         $rootScope.activeTemplate = 'Login';
@@ -74,8 +80,11 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.loadChannelsView = false;
         $rootScope.showLiveTVTemplate = false;
         $rootScope.showLiveTVTemplateItems = false;
+        $rootScope.showSearchTemplateItems = false;
+        $rootScope.showSearchTemplate = false;
         $rootScope.loadChannelCategoriesView = false;
         $rootScope.loadLiveTVChannelList = false;
+        $rootScope.loadSearchChannelList = false;
         $rootScope.showSideChannelList = false;
         $rootScope.showChannelInfoBar = false;
         $rootScope.moreControlsActive = false;
@@ -84,12 +93,22 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.showEpgListLoader = false;
         $rootScope.showSettingsTemplate = false;
         $rootScope.showSettingsVerticalItems = false;
+        $rootScope.showParentalPINPopup = false;
+        $rootScope.showPurchasePINPopup = false;
+        
         if($rootScope.showPlayerTemplate)
           $rootScope.hidePlayerTemplate();
     }
-    $scope.openTemplate = function ($event, $originalEvent) {
-        var selectedTemplate = $($event.currentTarget).data("template");
-        
+    $rootScope.forceOpenTemplateByName = function (templateName) {
+        $scope.openTemplate(false, false, templateName);
+    }
+    $scope.openTemplate = function ($event, $originalEvent, forceTemplate) {
+        var selectedTemplate = ''
+        if(forceTemplate)
+            selectedTemplate = forceTemplate
+        else 
+            selectedTemplate = $($event.currentTarget).data("template");
+
         switch (selectedTemplate) {
             case 'login':
                 $scope.hideAllTemplates();
@@ -111,6 +130,11 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                 $rootScope.showLoader = true;
                 $scope.openSettingsTemplate(false);
                 break;
+            case 'search':
+                $rootScope.showLoader = true;
+                $scope.openSearchTemplate(false);
+                break;
+                search
             default:
                 break;
         }
@@ -157,30 +181,6 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
 
     $scope.beforeEventBound = false
     $rootScope.$on('keydownEvent', function (item, event) {
-        /*
-        if($scope.beforeEventBound == false){
-            focusController.addBeforeKeydownHandler(function () {
-                console.log('DEBUG PURPOSE ONLY, REMOVE THIS PART OF CODE. focusControler line 156');
-                $scope.beforeEventBound = true
-                var focusGroup = focusController.getCurrentGroup()
-                if(event.keyCode == 38 && focusGroup=='homeallchannels'){
-                    if($rootScope.favoriteChannelsGlobal.length){
-                        console.log('focusing on FAV 0');
-                        focusController.focus('favoriteChannel0')
-                    }
-                    else if($rootScope.highlightedItems.length){
-                        console.log('focusing on HIGH 0');
-                        focusController.focus('highLightedItem0')
-                    }
-                    else{
-                        console.log('focusing on MENU 0');
-                        focusController.focus('menuItem0')
-                    }
-                }
-            })
-        }
-        */
-
         /*Help bar control*/
         var activeItem = $(focusController.getCurrentFocusItem());
         if(activeItem.data("channelitem")){
@@ -195,7 +195,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
           $rootScope.showHelpBar = true;
         }
         else if($rootScope.showEpgTemplate){
-            $rootScope.showHelpBar = true;
+            $rootScope.showHelpBar = false;
         }
         else
           $rootScope.showHelpBar = false;
@@ -223,12 +223,15 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             },100)
         }
 
-        if($rootScope.activeTemplate == 'EPG' && dataFocusableDepth !=10){
+        if($rootScope.activeTemplate == 'EPG' && dataFocusableDepth !=10 && dataFocusableDepth !=7){
             if($rootScope.showEpgReminderPopup){
-                focusController.setDepth(20)
-                $timeout(function () {
-                    focusController.focus("remindergochannelbtn");
-                },100)
+                if(dataFocusableDepth !=20){
+                    focusController.setDepth(20)
+                    $timeout(function () {
+                        focusController.focus("remindergochannelbtn");
+                    },100)
+                }
+                
             }
             else{
                 focusController.setDepth(10)
@@ -237,6 +240,14 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                 },100)
             }
             
+        }
+        if($rootScope.activeTemplate == "Settings" && dataFocusableDepth !=7){
+            if($rootScope.showPurchasePINPopup){
+                focusController.setDepth(7)
+                    $timeout(function () {
+                        focusController.focus("proceed-purchase-btn");
+                    },100)
+            }
         }
 
         //Player focus depth 2, focus on player
@@ -278,7 +289,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                 case 427:
                     if(dataFocusableGroup=="infoBarAnchor"){
                         $rootScope.$broadcast('selectedEpgChannelDown');
-                        $rootScope.playChannel($rootScope.currentFocusedChannel);
+                        $rootScope.openChannel(false,false,$rootScope.currentFocusedChannel.id);
                     }
                     break;
                 case 40:
@@ -297,7 +308,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                 case 428:
                     if(dataFocusableGroup=="infoBarAnchor"){
                         $rootScope.$broadcast('selectedEpgChannelUp');
-                        $rootScope.playChannel($rootScope.currentFocusedChannel);
+                        $rootScope.openChannel(false,false,$rootScope.currentFocusedChannel.id);
                     }
                     break;
                 default:
@@ -333,12 +344,15 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                     break;
             }
         }
-        
-        
         switch (event.keyCode) {
             case 10009:
             case 8:
-                if ($rootScope.showSideChannelList){
+                if(dataFocusableDepth==7){
+                    $scope.closeParentalPinPopup()
+                    //if($rootScope.showPurchasePINPopup)
+                        //$scope.closePurchasePinPopup()
+                }
+                else if ($rootScope.showSideChannelList){
                   $rootScope.showSideChannelList = false;
                   focusController.setDepth(2)
                   focusController.focus("playerFocusAnchor");
@@ -369,11 +383,23 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                     }
                     else{
                         if($rootScope.activeTemplate == 'Home'){
-                            console.log('Home active exit app');
                             $scope.exitApp()
+                            //$rootScope.logout()
                         }
-                        else if($rootScope.activeTemplate != "Settings")
+                        
+                        if($rootScope.activeTemplate == "Search"){
+                            if(!$rootScope.keyBoardActive)
+                                routingService.openPreviousTemplate();
+                        }
+                        else if($rootScope.activeTemplate != "Settings" && $rootScope.activeTemplate!='Login'){
                             routingService.openPreviousTemplate();
+                        }
+                        else{
+                            if(dataFocusableGroup=='settingsitem'){
+                                routingService.openPreviousTemplate();
+                            }
+                            
+                        }
                     }
                 }
                 break;
@@ -383,13 +409,13 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                 }
                 break;
             case tizen.tvinputdevice.getKey('ColorF1Green').code:
-                console.log("green pressed");
+                //console.log("green pressed");
                 break;
             case tizen.tvinputdevice.getKey('ColorF2Yellow').code:
-                console.log("yellow pressed");
+                //console.log("yellow pressed");
                 break;
             case tizen.tvinputdevice.getKey('ColorF3Blue').code:
-                console.log("blue pressed");
+                //console.log("blue pressed");
                 break;
             case 65376: // Done
                 $('input').blur()
@@ -488,9 +514,10 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $timeout(function () {
             $rootScope.showActiveTemplateInMenuBox = false;
             $rootScope.showMainMenu = true;
+            focusController.setDepth(0);
         }, 50);
         $timeout(function () {
-            focusController.focus("menuItem0");
+            focusController.focus("menuitem0");
             $('.mainContentBox').css({top:0})
         }, 150);
     };
@@ -615,7 +642,6 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
     }
 
     $scope.openSettingsTemplate = function (skipRouteStack) {
-        console.log('openSettingsTemplate');
         if (!skipRouteStack)
             routingService.addRouteToStack("openSettingsTemplate");
         focusController.setDepth(0);
@@ -638,7 +664,121 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
             skipRouteStack = args.skipRouteStack;
         $scope.openSettingsTemplate(skipRouteStack);
     });
+    $scope.openParentalPinPopup = function(channel,fromList,fullscreen){
+        $rootScope.parentalPin = null;
+        $rootScope.showParentalPinError = false;
+        $rootScope.showParentalPINPopup = true;
+        $rootScope.previusFocusDepth = focusController.getCurrentDepth();
+        $rootScope.lastFocusedItem = focusController.getCurrentFocusItem();
+        $timeout(function () {
+          focusController.setDepth(7);
+          if(!$rootScope.popupInFullscreen){
+            focusController.focus("parentalPin-input");
+          }
+          else
+          {
+            focusController.focus("close-parental-btn");
+          }
+  
+        }, 300);
+    }
+    $scope.closeParentalPinPopup = function($event, $originalEvent){
+        $rootScope.showParentalPINPopup = false;
+        $rootScope.showParentalPinError = false;
+        $timeout(function () {
+            focusController.setDepth($rootScope.previusFocusDepth);
+            focusController.focus($($rootScope.lastFocusedItem).data("focusable-name"));
+        }, 100);
+    };
+    $rootScope.openPurchasePinPopup = function(){
+        $rootScope.purchasePin = null;
+        $rootScope.showPurchasePinError = false;
+        $rootScope.showPurchasePINPopup = true;
+        $rootScope.previusFocusDepth = focusController.getCurrentDepth();
+        $rootScope.lastFocusedItem = focusController.getCurrentFocusItem();
+        $timeout(function () {
+          focusController.setDepth(7);
+          if(!$rootScope.popupInFullscreen){
+            focusController.focus("purchasePin-input");
+          }
+          else
+          {
+            focusController.focus("close-purchase-btn");
+          }
+  
+        }, 300);
+    }
+    $scope.closePurchasePinPopup = function($event, $originalEvent){
+        $rootScope.showPurchasePINPopup = false;
+        $rootScope.showPurchasePinError = false;
+        $timeout(function () {
+            focusController.setDepth($rootScope.previusFocusDepth);
+            focusController.focus($($rootScope.lastFocusedItem).data("focusable-name"));
+        }, 100);
+    };
+    $scope.checkPurchasePin = function($event, $originalEvent){
+        if($rootScope.loggedUser.account.purchase_pin == $rootScope.purchasePin){
+            $scope.closePurchasePinPopup();
+            httpService.updateSubscription($rootScope.selectedSubForPurchase)
+        }
+        else{
+            $rootScope.showPurchasePinError = true;
+        }
+    }
+    $scope.setPurchasePin = function ($event, value) {
+        if ($event.target.parentNode.title == "purchasePin") {
+            $rootScope.purchasePin = value;
+        }
+    };
+    $scope.checkParentalPin = function($event, $originalEvent){
+        if($rootScope.loggedUser.profile.pin == $rootScope.parentalPin){
+          $scope.closeParentalPinPopup();
+          $rootScope.showPlayerLoader = true;
+            $timeout(function () {
+            $rootScope.$broadcast('Invoke-openPlayerTemplate', {
+                skipRouteStack: true
+            });
+            $rootScope.playChannel($rootScope.channelToPlay);
+            }, 10);
+        }
+        else{
+          $rootScope.showParentalPinError = true;
+        }
+    }
+    $scope.setParentalPin = function ($event, value) {
+        if ($event.target.parentNode.title == "parentalPin") {
+            $rootScope.parentalPin = value;
+        }
+    };
+    $scope.focusInputField = function ($event, $originalEvent) {
+        $($event.currentTarget).find("input").focus();
+    }
 
+    $scope.openSearchTemplate = function (skipRouteStack) {
+        if (!skipRouteStack)
+            routingService.addRouteToStack("openSearchTemplate");
+        $scope.hideAllTemplates();
+
+        $rootScope.showMainTemplate = true;
+        $rootScope.showSearchTemplate = true;
+        $rootScope.showSearchTemplateItems = true;
+        $rootScope.loadSearchChannelList = true;
+        $rootScope.activeTemplate = 'Search';
+        $rootScope.hidePlayerTemplate();
+        focusController.setDepth(0);
+        $rootScope.currentFocusDepth = 0;
+        $rootScope.$broadcast('loadSearchTemplateInit');
+        $('.mainContentBox').css({top:0})
+        $timeout(function () {
+            focusController.focus("searchinputfield");
+        }, 1000);
+    };
+    $rootScope.$on('Invoke-openSearchTemplate', function (event, args) {
+        var skipRouteStack = false;
+        if (args && args.skipRouteStack)
+            skipRouteStack = args.skipRouteStack;
+        $scope.openSearchTemplate(skipRouteStack);
+    });
     $scope.exitApp = function(){
       tizen.application.getCurrentApplication().exit();
     }

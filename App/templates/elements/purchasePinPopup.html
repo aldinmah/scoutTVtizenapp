@@ -1,0 +1,18 @@
+<div class="popup-wrapper purchasePinPopup" ng-if="showPurchasePINPopup">
+    <div class="popup">
+      <div class="popup-msg">Enter your purchase pin</div>
+      <caph-input focusable on-focused="focusInputField($event, $originalEvent)" type="password" title="purchasePin" on-changed="setPurchasePin($event,value)" data-focusable-depth="7" value="purchasePin" max-length="5" place-holder="PIN" class="regularInput" data-focusable-name="purchasePin-input"></caph-input>
+      <div class="clearfix"></div>
+      <div class="popup-error-msg" ng-if="showPurchasePinError">Purchase PIN is not valid.</div>
+      <div class="col-xs-12 text-center popupButtons">
+
+        <caph-button focusable class="btn btn-secondary proceed-btn control-item-wrapper" data-focusable-name="proceed-purchase-btn" data-focusable-depth="7" on-selected="checkPurchasePin($event, $originalEvent)">
+            <span>Proceed</span>
+        </caph-button>
+        <caph-button focusable class="btn btn-secondary close-btn control-item-wrapper" title="Close" data-focusable-name="close-purchase-btn" data-focusable-depth="7" on-selected="closePurchasePinPopup($event, $originalEvent)">
+            <span>Close</span>
+        </caph-button>
+        </div>
+    </div>
+  </div>
+  

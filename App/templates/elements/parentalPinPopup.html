@@ -1,0 +1,18 @@
+<div class="popup-wrapper parentalPinPopup" ng-if="showParentalPINPopup">
+    <div class="popup">
+      <div class="popup-msg">Enter your parental pin</div>
+      <caph-input focusable on-focused="focusInputField($event, $originalEvent)" type="password" title="parentalPin" on-changed="setParentalPin($event,value)" data-focusable-depth="7" value="parentalPin" min-length=4 max-length="4" place-holder="PIN" class="regularInput" data-focusable-name="parentalPin-input"></caph-input>
+      <div class="clearfix"></div>
+      <div class="popup-error-msg" ng-if="showParentalPinError">Parental PIN is not valid.</div>
+      <div class="col-xs-12 text-center popupButtons">
+
+        <caph-button focusable class="btn btn-secondary proceed-btn control-item-wrapper" data-focusable-name="proceed-parental-btn" data-focusable-depth="7" on-selected="checkParentalPin($event, $originalEvent)">
+            <span>Proceed</span>
+        </caph-button>
+        <caph-button focusable class="btn btn-secondary close-btn control-item-wrapper" title="Close" data-focusable-name="close-parental-btn" data-focusable-depth="7" on-selected="closeParentalPinPopup($event, $originalEvent)">
+            <span>Close</span>
+        </caph-button>
+        </div>
+    </div>
+  </div>
+  

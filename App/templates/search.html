@@ -1,0 +1,10 @@
+<div class="SearchWrapper" ng-show="showSearchTemplateItems">
+    <div class="searchInputWrapper no-padding col-xs-12">
+        <div class="searchInput no-padding col-xs-offset-3 col-xs-6">
+            <caph-input data-focusable-name="searchinputfield" focusable on-changed="setSearchTerm($event,value)" on-blurred="setSearchKeyboard($event,value)" on-selected="focusSearchField($event, $originalEvent)" title="search" value="searchTerm" place-holder="Search..." max-length="150" class="regularInput"></caph-input>
+        </div>
+    </div>
+    <div class="searchResultWrapper col-xs-12">
+        <ng-include ng-if="loadSearchChannelList" src="'App/templates/channels/liveTVChannelList.html'"></ng-include>
+    </div>
+</div>

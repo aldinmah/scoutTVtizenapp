@@ -17,11 +17,11 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
         {
             name: "Settings",
             template: "settings"
+        },
+        {
+            name: "Search",
+            template: "search"
         }
-        /*{
-            name: "Logout",
-            template: "logout"
-        },*/
         /*{
             name: "Account",
             template: "account"
@@ -41,7 +41,7 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
         }
         else{
           $rootScope.loadHighlightedView = false;
-          $rootScope.favoriteUpElement = 'menuItem0';
+          $rootScope.favoriteUpElement = 'menuitem0';
         }
     });
 
@@ -72,7 +72,6 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
     };
 
     $scope.refreshCurrentTime = function () {
-        console.log('refreshCurrentTime');
         if (!$scope.clockInitialized)
             $scope.clockInitialized = $interval($scope.refreshCurrentTime, 30000);
         $rootScope.currentTime = timeDateService.getCurrentTimeFormatedHHMM();

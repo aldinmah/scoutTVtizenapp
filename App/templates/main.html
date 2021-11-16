@@ -22,6 +22,7 @@
                 </div>
                 -->
                 <div ng-controller="epgCtrl">
+                    <ng-include ng-if="showSearchTemplate" src="'App/templates/search.html'"></ng-include>
                     <ng-include ng-if="showLiveTVTemplate" src="'App/templates/liveTV.html'"></ng-include>
                     <ng-include ng-if="showEpgTemplate" src="'App/templates/epg.html'"></ng-include>
                 </div>

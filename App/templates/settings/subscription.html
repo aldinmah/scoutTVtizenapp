@@ -1,8 +1,27 @@
 <div class="col-xs-12 subscriptionPanel">
    <div class="col-xs-12 subscriptionWrapper">
-      <h1 class="col-xs-12">Subscription</h1>
+      <h1 class="col-xs-12 subHeader">Subscription</h1>
       <div class="col-xs-12 subscriptionContent">
-         Subscription Panel
+         <div class="col-xs-12 activeSubWrapper">
+            <div class="subBoxWrapper">
+               <div class="col-xs-12 no-padding title"><span>CURRENT PLAN</span></div>
+               <div class="col-xs-12 no-padding name"><span>{{activeSubscription.name}}</span></div>
+               <div class="col-xs-12 no-padding price"><span>{{activeSubscription.subscription_price}}{{activeSubscription.currency_code}} / {{activeSubscription.billing_period}}</span></div>
+               <div class="col-xs-12 no-padding description"><span>{{activeSubscription.description}}</span></div>
+            </div>
+         </div>
+         <div class="col-xs-12 availableSubList">
+            <h2>CHOOSE A NEW SUBSCRIPTION PLAN</h2>
+            <div class="subscriptionListWrapper col-xs-12">
+               <caph-list container-class="subList itemsContainer verticalList col-xs-12" items="item in subscriptionList" loop="false" direction="vertical">
+                   <div class="subItem" focusable data-focusable-name="subitem{{$index}}" on-selected="buySubscription(item)">
+                     <div class="col-xs-12 no-padding name"><span>{{item.name}}</span></div>
+                     <div class="col-xs-12 no-padding price"><span>{{item.subscription_price}}{{item.currency_code}} / {{item.billing_period}}</span></div>
+                     <div class="col-xs-12 no-padding description"><span>{{item.description}}</span></div>     
+                   </div>
+               </caph-list>
+       </div>
+         </div>
       </div>
   </div>
 </div>

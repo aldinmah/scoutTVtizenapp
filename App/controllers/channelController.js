@@ -7,6 +7,8 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
   $scope.channelCategoriesRaw = [];
   $scope.channelCategories = [];
   $scope.verticalChannelListReady = false;
+  $rootScope.channelToPlay = {}
+  $scope.searchTerm = ''
   $scope.channelCategoryAll = {
     id: 'all',
     name: "All",
@@ -27,6 +29,7 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
         $scope.favoriteChannels = args.response;
         $rootScope.favoriteChannelsGlobal = args.response;
       } else {
+        $rootScope.loadFavoriteChannelsView = false;
         $rootScope.loadChannelsView = true;
         $rootScope.favoriteChannelsExist = false;
       }
@@ -101,6 +104,39 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
   $rootScope.$on('loadLiveTVtemplateInit', function (event, args) {
     $scope.filterChannelsByGenre();
   });
+  
+  $scope.setSearchTerm = function ($event, value) {
+    $scope.searchTerm = value;
+    $scope.filterChannelsByTerm($scope.searchTerm)
+  }
+  $scope.filterChannelsByTerm = function (searchTerm) {
+    $scope.loadSearchChannelList = false;
+
+    if (searchTerm == "") {
+        $scope.filteredChannels = $rootScope.channels;
+    } else {
+        $scope.filteredChannels = [];
+        _.filter($rootScope.channels, function (channel) {
+            var filteredChannels = [];
+            if (channel.title.toLowerCase().indexOf(searchTerm.toLowerCase()) != -1)
+              $scope.filteredChannels.push(channel);
+        });
+    }
+    $timeout(function () {
+      $scope.loadSearchChannelList = true;
+    },0)
+  };
+  $rootScope.$on('loadSearchTemplateInit', function (event, args) {
+    $scope.filterChannelsByTerm('')
+  });
+  $rootScope.keyBoardActive = false;
+  $rootScope.setSearchTerm = function () {
+    $rootScope.keyBoardActive = false;
+  }
+  $scope.focusSearchField = function ($event, $originalEvent) {
+    $($event.currentTarget).find("input").focus();
+    $rootScope.keyBoardActive = true;
+  };
   $scope.getCategoryById = function (id) {
     for (var i = 0; i < $scope.channelCategoriesRaw.length; i++)
         if ($scope.channelCategoriesRaw[i].id == id)
@@ -164,15 +200,13 @@ scoutTVApp.controller("channelCtrl", ['$scope', '$rootScope', '$timeout', 'focus
       $rootScope.$broadcast('updateCurrentSideBarEpg');
     }
   }
-  $scope.openChannel = function ($event, $originalEvent, channelID) {
-
+  $rootScope.openChannel = function ($event, $originalEvent, channelID) {
     var channel = $rootScope.getChannelByChannelID(channelID);
-    console.log('opening channel');
-    console.log(channel);
+    $rootScope.channelToPlay = channel
     $rootScope.channelTemplate = true;
     if (channel) {
       $rootScope.selectedChannel = channel;
-      if(channel.parental_rating && channel.parental_rating.require_pin)
+      if((channel.parental_rating && channel.parental_rating.require_pin))
       {
         $scope.openParentalPinPopup(true,true);
       }else{

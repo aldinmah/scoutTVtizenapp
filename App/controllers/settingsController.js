@@ -5,11 +5,12 @@ scoutTVApp.controller("settingsCtrl", ['$scope', '$rootScope','$timeout', 'focus
         {id:2,name:'Add New Account',template:'add_account'},
         {id:3,name:'Payment History',template:'payment_history'},
         //{id:4,name:'Change Password',template:'change_password'},
-        {id:5,name:'Subscription',template:'subscription'},
+        //{id:5,name:'Subscription',template:'subscription'},
         {id:6,name:'Billing Information',template:'billing_information'},
-        {id:7,name:'Settings',template:'settings'},
+        //{id:7,name:'Settings',template:'settings'},
         {id:8,name:'Devices',template:'devices'},
         {id:9,name:'Themes',template:'themes'},
+        {id:9,name:'Logout',template:'logout'},
     ];
     $rootScope.countriesList = []
     $scope.showCountryListPopup = false;
@@ -88,6 +89,10 @@ scoutTVApp.controller("settingsCtrl", ['$scope', '$rootScope','$timeout', 'focus
             $scope.enableCreateBtn = true;
     }
     
+    $rootScope.$on('subscriptionUpdated',function (event, args) {
+        $rootScope.reLogin();
+        //httpService.updateAccountData($scope.accountData)
+    })
     $rootScope.$on('countriesLoaded',function (event, args) {
         if(args.response && args.response.length){
             $rootScope.countriesList = args.response
@@ -138,19 +143,19 @@ scoutTVApp.controller("settingsCtrl", ['$scope', '$rootScope','$timeout', 'focus
         }
     })
     
-    $scope.saveAccountBillingInfoChanges = function () { 
-        httpService.updateAccountData($scope.accountData)
-    }
     $scope.saveAccountInfoChanges = function () { 
         if($scope.purchase_pinErrorMessage.length>0 || $scope.parental_pinErrorMessage.length>0 || $scope.emailErrorMessage.length>0) return;
             httpService.updateAccountData($scope.accountData)
     }
-    $scope.saveAccountInfoChanges = function () { 
-        if($scope.accountData.account.billing_first_name.length>0 || 
-            $scope.accountData.account.billing_email.length>0 || 
-            $scope.accountData.account.billing_address.length>0 || 
-            $scope.accountData.account.billing_last_name.length>0 || 
-            $scope.accountData.account.billing_country_name.length>0) return;
+    $scope.saveAccountBillingInfoChanges = function () { 
+        if(!$scope.accountData.account.billing_first_name.length>0 || 
+            !$scope.accountData.account.billing_email.length>0 || 
+            !$scope.accountData.account.billing_address.length>0 || 
+            !$scope.accountData.account.billing_last_name.length>0 || 
+            !$scope.accountData.account.billing_country_name.length>0) {
+                $scope.enableBillingSaveBtn = false;
+                return false;
+            }
             httpService.updateAccountData($scope.accountData)
     }
     $scope.resetAccountInfoChanges = function () {
@@ -186,6 +191,10 @@ scoutTVApp.controller("settingsCtrl", ['$scope', '$rootScope','$timeout', 'focus
         $scope.emailErrorMessage = ''
     }
     $scope.openSettingsPanel = function (template) {
+        if(template=='logout'){
+            $rootScope.logout();
+            return false;
+        }
         $scope.hideAllPanels();
         $scope[template] = true
 
@@ -226,6 +235,18 @@ scoutTVApp.controller("settingsCtrl", ['$scope', '$rootScope','$timeout', 'focus
             focusController.focus('field7')
         },100)
     })
+    $rootScope.$on('subscriptionsLoaded',function (event, args) { 
+        if(args.response && $rootScope.loggedUser && $rootScope.loggedUser.subscription){
+            $rootScope.subscriptionList = args.response;
+            for(var i=0;i<$rootScope.subscriptionList.length;i++){
+                if($rootScope.subscriptionList[i].id == $rootScope.loggedUser.subscription.id)
+                    $rootScope.activeSubscription = $rootScope.subscriptionList[i]
+            }
+        }
+        else
+            $rootScope.subscriptionList = []
+    })
+    
     $scope.focusCheckbox = function ($event, $originalEvent) {
         if(focusController.getCurrentGroup()=='checkboxWrapper'){
             focusController.focus(nearestFocusableFinder.getNearest($(focusController.getCurrentFocusItem()), FocusConstant.DIRECTION.RIGHT));
@@ -513,4 +534,24 @@ scoutTVApp.controller("settingsCtrl", ['$scope', '$rootScope','$timeout', 'focus
             $scope.$apply()
         },100)
     };
+
+    $scope.selectTheme = function (selectedTheme) {
+        localStorage.setItem("selectedTheme",selectedTheme);
+        $rootScope.selectedTheme = selectedTheme;
+        if(selectedTheme=='dark')
+            $('body').removeClass('light').addClass('dark')
+        else
+            $('body').removeClass('dark').addClass('light')
+    }
+    $rootScope.selectedSubForPurchase = {};
+    $scope.buySubscription = function (subscription) {
+
+        $rootScope.selectedSubForPurchase = subscription;
+        if(subscription.subscription_price==0){
+            $rootScope.openPurchasePinPopup()
+        }
+        else{
+           // console.log('show payment info screen');
+        }
+    }
 }]);

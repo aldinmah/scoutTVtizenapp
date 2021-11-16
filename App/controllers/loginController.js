@@ -1,11 +1,9 @@
 scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusController', 'configService', 'httpService', 'storageService', 'routingService', function ($scope, $rootScope, $timeout, focusController, configService, httpService, storageService, routingService) {
 
     $rootScope.removeLoginScreen = false;
-    $scope.username = "aldinMain";
+    $rootScope.existingPassword = "";
+    $scope.username = "aldinmain";
     $scope.password = "qqqq";
-    $rootScope.existingPassword = "qqqq";
-    //$scope.username = "";
-    //$scope.password = "";
     $scope.forgotPasswordEmail = '';
     $scope.forgotPasswordClass = '';
     $scope.errorMsgValue = "";
@@ -34,14 +32,22 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
             $scope.loginErrorMsg = false;
         }
     }
+    $rootScope.reLogin = function () {
+        if ($scope.username.length && $scope.password.length) {
+            var uid = webapis.network.getMac();
+            //var uid = '6a2d8e717d47e3874ca7aa3f8b08e2f6'
+            var hash = window.btoa($scope.username + ":" + $scope.password);
+            httpService.login(hash, uid, true);
+        }
+    }
     $scope.login = function ($event, $originalEvent) {
         if($scope.preventDoubleLoad) return;
         $scope.preventDoubleLoad = true;
 
         if ($scope.username.length && $scope.password.length) {
             $rootScope.showLoader = true;
-            //var uid = webapis.network.getMac();
-            var uid = '6a2d8e717d47e3874ca7aa3f8b08e2f6'
+            var uid = webapis.network.getMac();
+            //var uid = '6a2d8e717d47e3874ca7aa3f8b08e2f6'
             var hash = window.btoa($scope.username + ":" + $scope.password);
             httpService.login(hash, uid);
         }
@@ -59,22 +65,32 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
         }, 10);
     }
     $scope.$on('loginSuccess', function (event, args) {
-        console.log('loginSuccess');
-        console.log(args.response);
-    
+        var isRelogin = args.isRelogin;
+
         storageService.set("user-data", args.response);
         $rootScope.loggedUser = args.response;
         $rootScope.loggedUser.existingPassword = $scope.password
         $rootScope.userToken = args.response.device.token;
-        $rootScope.showLoginTemplate = false;
-        $scope.loginErrorMsg = false;
-        routingService.clearTemplateStack();
-        $rootScope.$broadcast('Invoke-openHomeTemplate', {
-            skipRouteStack: false
-        });
-        $rootScope.removeLoginScreen = true;
-        httpService.initAPICall();
+
+        if(!isRelogin){
+            $rootScope.showLoginTemplate = false;
+            $scope.loginErrorMsg = false;
+            routingService.clearTemplateStack();
+            $rootScope.$broadcast('Invoke-openHomeTemplate', {
+                skipRouteStack: false
+            });
+            $rootScope.removeLoginScreen = true;
+            httpService.initAPICall();
+        }
     });
+    $rootScope.logout = function () {
+        httpService.logout();
+    }
+    $rootScope.$on('logoutSuccess', function (event, args) {
+        $rootScope.showLoader = false;
+        storageService.destroy("user-data");
+        $rootScope.forceOpenTemplateByName('login');
+    })
     $scope.$on('loginError', function (event, args) {
         $rootScope.showLoader = false;
         if (args.response)
@@ -109,13 +125,25 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
     $scope.autoLogin = function () {
         var userData = storageService.get("user-data");
         if (userData) {
-            alert('auto login event on load')
+            var uid = webapis.network.getMac();
+            httpService.autoDeviceLogin(uid)
         } else {
             $scope.openLoginScreen();
-
+           
         }
     }
     angular.element(document).ready(function () {
+        var selectedTheme = localStorage.getItem("selectedTheme");
+        if(!selectedTheme){
+            selectedTheme = 'light'
+            localStorage.setItem("selectedTheme",selectedTheme);
+        }
+        $rootScope.selectedTheme = selectedTheme
+        if($rootScope.selectedTheme=='dark')
+            $('body').removeClass('light').addClass('dark')
+        else
+            $('body').removeClass('dark').addClass('light')
+
         $scope.autoLogin();
     })
 }]);

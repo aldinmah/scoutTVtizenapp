@@ -50,6 +50,8 @@
 </head>
 <body ng-app="scoutTVApp">
     <div class="app-wrapper container-fluid no-padding" ng-controller="templateCtrl">
+        <ng-include ng-if="showParentalPINPopup" src="'App/templates/elements/parentalPinPopup.html'"></ng-include>
+        <ng-include ng-if="showPurchasePINPopup" src="'App/templates/elements/purchasePinPopup.html'"></ng-include>
         <ng-include ng-if="showLoader" src="'App/templates/elements/loader.html'"></ng-include>
         <ng-include ng-if="showEpgReminderPopup" src="'App/templates/elements/epgReminderPopup.html'"></ng-include>
         <login ng-if="!removeLoginScreen"></login>

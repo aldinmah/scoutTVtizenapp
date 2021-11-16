@@ -77,11 +77,15 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
   $rootScope.$on('epgReminderAdded', function(event, args) {
     if(args.response.epg_channel_id && args.response.epg_programme_id){
       $scope.updateEpgItemByEpgChannelId(args.response);
+      $scope.currentEpg.hasReminder = true;
+      $scope.$apply()
     }
   });
   $rootScope.$on('epgReminderDeleted', function(event, args) {
     if(args.response.epg_channel_id && args.response.epg_programme_id){
       $scope.updateEpgItemByEpgChannelId(args.response,true);
+      $scope.currentEpg.hasReminder = false;
+      $scope.$apply()
     }
   });
   $rootScope.getChannelByEpgChannelId = function(epgchannelid){
@@ -100,7 +104,6 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
           var date = new Date($rootScope.epgReminders[i].activate_time)
           var dateWithoutTimezone = new Date(date.getTime() + (date.getTimezoneOffset() * 60000));
           if(dateWithoutTimezone < new Date()){
-            console.log('activate popup epg');
             $rootScope.activeEpgReminder = $rootScope.epgReminders[i];
             $rootScope.activeEpgReminder.startFormated = timeDateService.formatDateToHHMM($rootScope.epgReminders[i].epg_programme.start)
             $rootScope.activeEpgReminder.channel = $rootScope.getChannelByEpgChannelId($rootScope.epgReminders[i].epg_channel_id);
@@ -112,8 +115,6 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
   };
 
   $rootScope.$on('epgRemindersLoaded', function(event, args) {
-    console.log('epg reminders loaded')
-    console.log(args.response)
     $rootScope.epgReminders = args.response;
     $rootScope.checkReminders();
 
@@ -359,7 +360,6 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
   }
 
   $scope.updateEpgItemDetails = function(element) {
-    console.log('updateEpgItemDetails needs to be removed??? BUT IT IS CALLED!!');
     $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex).focus();
     var focusedEpgItem = $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex);
     focusedEpgItem.addClass("focusedEpg");
@@ -383,7 +383,7 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
       }
       $rootScope.playCatchup = false;
     }
-    $rootScope.showHelpBar = true;
+    //$rootScope.showHelpBar = true;
 
     $scope.currentFocusedEpgElement = focusedEpgItem;
     var start = focusedEpgItem.data("epgitemstart");
@@ -574,8 +574,8 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
     focusController.focus($rootScope.lastFocusedItem);
     httpService.deleteEpgReminder(reminder_id,true);
   }
-  $scope.handleEPGReminder = function (item) {
-    if(!item.showReminderButton) return;
+  $rootScope.handleEPGReminder = function (item, forceEvent) {
+    if(!item.showReminderButton && !forceEvent) return;
     if(item.hasReminder){
       for(var i=0;i<$rootScope.epgReminders.length;i++){
         if($rootScope.epgReminders[i].string_id == item.string_id)

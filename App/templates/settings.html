@@ -2,7 +2,7 @@
         <div class="verticalSettingsListWrapper">
             <div class="col-xs-12 no-padding sideChannelsList sideSettingsList">
                 <caph-list container-class="settingsListVerticalControl" items="item in settingsItems" loop="false" direction="vertical" delay="10" duration="0.1s">
-                    <div class="col-xs-12 settingsListItem" focusable data-focusable-depth="0" id="settingsItem{{$index}}" data-focusable-name="settingsItem{{$index}}" on-selected="openSettingsPanel(item.template)">
+                    <div class="col-xs-12 settingsListItem" focusable data-focusable-depth="0" id="settingsItem{{$index}}" data-focusable-name="settingsItem{{$index}}" data-focusable-group="settingsitem" on-selected="openSettingsPanel(item.template)">
                         <span class="templateTitle" ng-bind="item.name"></span>
                     </div>
                 </caph-list> 

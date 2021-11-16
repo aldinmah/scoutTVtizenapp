@@ -1,7 +1,7 @@
 scoutTVApp.factory('httpService', function ($http, $rootScope, configService, globalService, timeDateService) {
     $http.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 
-    function login(hash, uid) {
+    function login(hash, uid, isRelogin) {
         var req = {
             method: 'POST',
             url: configService.ApiCollection.LoginApiUrl,
@@ -14,7 +14,8 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         $http(req).then(function (response) {
             if (response.status == 200 && response.data.data) {
                 $rootScope.$broadcast('loginSuccess', {
-                    response: response.data.data
+                    response: response.data.data,
+                    isRelogin: isRelogin
                 });
             } else {
                 $rootScope.$broadcast('loginError', {
@@ -28,7 +29,33 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
             });
         });
     }
+    function autoDeviceLogin(deviceUID) {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.DeviceLogin,
+            headers: {
+                'Device': "smart-tv",
+                'UID': deviceUID
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('loginSuccess', {
+                    response: response.data.data,
+                    isRelogin: false
+                });
+            } else {
+                $rootScope.$broadcast('loginError', {
+                    response: response.data.message
+                });
+            }
 
+        }, function (response) {
+            $rootScope.$broadcast('loginError', {
+                response: configService.generalErrorMessage
+            });
+        });
+    }
     function logout() {
         var req = {
             method: 'GET',
@@ -38,9 +65,9 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
             }
         }
         $http(req).then(function (response) {
-            if (response.status == 200 && response.data.data) {
+            if (response.status == 200 && response.data.status == 1) {
                 $rootScope.$broadcast('logoutSuccess', {
-                    response: response.data.data
+                    response: response.data
                 });
             } else {
                 $rootScope.$broadcast('logoutError', {
@@ -619,7 +646,58 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
             });
         });
     }
-    
+    function getSubscriptions() {
+        var req = {
+            method: 'GET',
+            url: configService.ApiCollection.GetSubscriptions,
+            headers: {
+                'Token': $rootScope.userToken
+            }
+        }
+        $http(req).then(function (response) {
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('subscriptionsLoaded', {
+                    response: response.data.data
+                });
+            } else {
+                $rootScope.$broadcast('subscriptionsLoaded', {
+                    response: []
+                });
+            }
+        }, function (response) {
+            $rootScope.$broadcast('subscriptionsLoaded', {
+                response: []
+            });
+        });
+    }
+    function updateSubscription(subscription,purchasePIN) {
+        var apiUrl = configService.ApiCollection.UpdateSubscription;
+        var postData = new FormData();
+		postData.append('subscription_id', subscription.id);
+        axios({
+			method: 'post',
+			url: apiUrl,
+			data: postData,
+			headers: {
+				'Token': $rootScope.userToken,
+			}
+		}).then((response)=>{
+            if (response.status == 200 && response.data.data) {
+                $rootScope.$broadcast('subscriptionUpdated', {
+                    response: response.data.data,
+                });
+            } else {
+                $rootScope.$broadcast('subscriptionUpdated', {
+                    response: [],
+                });
+            }
+		}).catch((err)=>{
+            $rootScope.$broadcast('subscriptionUpdated', {
+                response: [],
+            });
+			return err;
+		});
+    }
     function initAPICall() {
         getHighlighted()
         getChannels()
@@ -627,7 +705,8 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         getFavoriteChannels()
         getEpg(true, 1, 2),
         getEpgReminders(),
-        getCountries()
+        getCountries(),
+        getSubscriptions()
     }
     return {
         login: login,
@@ -645,6 +724,8 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         updateAccountData: updateAccountData,
         getAllDevices: getAllDevices,
         createProfile: createProfile,
-        getPaymentHistory: getPaymentHistory
+        getPaymentHistory: getPaymentHistory,
+        updateSubscription: updateSubscription,
+        autoDeviceLogin: autoDeviceLogin
     }
 });
