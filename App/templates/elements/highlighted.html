@@ -1,6 +1,6 @@
 <div class="highlightedWrapper col-xs-12 no-padding">
     <caph-list container-class="highlightedList" items="item in highlightedItems" loop="false">
-        <div class="highlightedItem" data-itemindex="{{$index}}" focusable data-focusable-name="highLightedItem{{$index}}" on-selected="openHighlighted($event, $originalEvent,{{item.id}})" on-focused="focusHorizontalItem($event, $originalEvent)">
+        <div class="highlightedItem" data-itemindex="{{$index}}" focusable data-focusable-name="highLightedItem{{$index}}" on-selected="openHighlighted($event, $originalEvent,{{item.model}})" on-focused="focusHorizontalItem($event, $originalEvent)">
             <img class="itemBanner" ng-src="{{item.image}}" alt="">
             <div class="itemInfo col-xs-7">
                 <span class="itemTitle col-xs-12">{{item.model.title}}</span>

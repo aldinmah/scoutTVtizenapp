@@ -2,8 +2,8 @@ scoutTVApp.controller("loginCtrl", ['$scope', '$rootScope','$timeout', 'focusCon
 
     $rootScope.removeLoginScreen = false;
     $rootScope.existingPassword = "";
-    $scope.username = "aldinmain";
-    $scope.password = "qqqq";
+    $scope.username = "";
+    $scope.password = "";
     $scope.forgotPasswordEmail = '';
     $scope.forgotPasswordClass = '';
     $scope.errorMsgValue = "";

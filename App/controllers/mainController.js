@@ -45,30 +45,14 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
         }
     });
 
-    $scope.openHighlighted = function ($event, $originalEvent,item) {
-        $rootScope.showLoader = true;
+    $scope.openHighlighted = function ($event, $originalEvent,channel) {
+        $rootScope.showPlayerLoader = true;
         $timeout(function () {
-            $rootScope.showLoader = false;
-        }, 1000);
-        switch (item.type) {
-          case 0:
-          $rootScope.$broadcast('openHighlightedVod', {
-              _vod: item.model,
+          $rootScope.$broadcast('Invoke-openPlayerTemplate', {
+              skipRouteStack: true
           });
-            break;
-          case 1:
-          $rootScope.$broadcast('openHighlightTvShow', {
-              _vod: item.model,
-          });
-            break;
-          case 2:
-          $rootScope.$broadcast('openHighlightEpisode', {
-              _vod: item.model,
-          });
-              break;
-          default:
-
-        }
+          $rootScope.playChannel(channel);
+        }, 10);
     };
 
     $scope.refreshCurrentTime = function () {
