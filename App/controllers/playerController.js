@@ -108,17 +108,17 @@ scoutTVApp.controller("playerCtrl", ['$scope', '$rootScope', '$timeout', 'focusC
           webapis.avplay.close();
           webapis.avplay.open(channelUrl);
         }
-        //var BitRateString = "BITRATES=30000~35000|STARTBITRATE=HIGHEST|SKIPBITRATE=LOWEST"
-        //webapis.avplay.setStreamingProperty("ADAPTIVE_INFO", BitRateString);
+        var BitRateString = "STARTBITRATE=HIGHEST|SKIPBITRATE=LOWEST"
+        webapis.avplay.setStreamingProperty("ADAPTIVE_INFO", BitRateString);
         // For the initial buffering
         webapis.avplay.setBufferingParam("PLAYER_BUFFER_FOR_PLAY","PLAYER_BUFFER_SIZE_IN_SECOND", 1); // 5 is in seconds
         // For the rebuffering
         webapis.avplay.setBufferingParam("PLAYER_BUFFER_FOR_RESUME","PLAYER_BUFFER_SIZE_IN_SECOND", 5); // 15 is in seconds
         webapis.avplay.setListener($scope.listener);
         webapis.avplay.setDisplayRect($rootScope.avPlayerObj.offsetLeft, $rootScope.avPlayerObj.offsetTop, $rootScope.avPlayerObj.offsetWidth, $rootScope.avPlayerObj.offsetHeight);
-        webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_AUTO_ASPECT_RATIO')
+        webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_FULL_SCREEN')
+        //webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_AUTO_ASPECT_RATIO')
         
-
         webapis.avplay.prepareAsync(successCallback, errorCallback);
         //webapis.avplay.play();
         
