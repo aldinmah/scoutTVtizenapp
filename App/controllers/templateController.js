@@ -288,7 +288,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                     break;
                 case 427:
                     if(dataFocusableGroup=="infoBarAnchor"){
-                        $rootScope.$broadcast('selectedEpgChannelDown');
+                        $rootScope.$broadcast('selectedEpgChannelUp');
                         $rootScope.openChannel(false,false,$rootScope.currentFocusedChannel.id);
                     }
                     break;
@@ -307,7 +307,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
                     break;
                 case 428:
                     if(dataFocusableGroup=="infoBarAnchor"){
-                        $rootScope.$broadcast('selectedEpgChannelUp');
+                        $rootScope.$broadcast('selectedEpgChannelDown');
                         $rootScope.openChannel(false,false,$rootScope.currentFocusedChannel.id);
                     }
                     break;
