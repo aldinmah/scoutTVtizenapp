@@ -25,6 +25,22 @@ scoutTVApp.factory('timeDateService', function(globalService) {
             return curr_day + ", " + curr_date + "." + curr_month + "." + curr_year;
         },
         getFormatedMonthddyyyy : function(d) {
+            var date = d.getDate();
+            if(date<10)
+                date = '0'+date
+            var month = d.getMonth()+1;
+            if(month<10)
+                month = '0'+month
+            var year = d.getFullYear();
+            var hour = d.getHours();
+            if(hour<10)
+                hour = '0'+hour;
+            var min = d.getMinutes();
+            if(min<10)
+                min = '0'+min;
+            return year + "-" + month + "-" + date + " "+hour+":"+min+":00";
+        },
+        getFormatedyyyyMMDD : function(d) {
             var curr_day = globalService.DaysOfWeekShort[d.getDay()];
             var curr_date = d.getDate();
             var curr_month = globalService.MonthNames[d.getMonth()];

@@ -291,9 +291,12 @@ scoutTVApp.factory('httpService', function ($http, $rootScope, configService, gl
         });
     }
     function getDayEpgByChannelID(filter, fromTimestamp, channelID) {
+        var currentDate = new Date()
         var startTimestamp = new Date(fromTimestamp*1000);
         startTimestamp.setUTCHours(0,0,0,0);
-        startTimestamp = parseInt(startTimestamp.getTime()/1000)
+        startTimestamp = startTimestamp.getTime() + (currentDate.getTimezoneOffset() * 60 * 1000);
+        startTimestamp = parseInt(startTimestamp/1000)
+
         var apiUrl = configService.ApiCollection.Epg;
         var to_timestamp = startTimestamp + (60 * 60 * 24);
 

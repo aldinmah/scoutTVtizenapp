@@ -132,8 +132,9 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
       if ($scope.epg[i].epg_channel_id == $rootScope.currentFocusedChannel.epg_channel_id) {
         for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
 
-          var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
-          var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
+          var startTime = new Date($scope.epg[i].programmes[j].start);
+          var endTime = new Date($scope.epg[i].programmes[j].stop);
+          
           if (startTime < currentDate && currentDate < endTime) {
             $rootScope.currentEpg = $scope.epg[i].programmes[j];
             $rootScope.currentEpgChannelIndex = i;
@@ -159,8 +160,8 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
       for (var i = 0; i < $scope.epg.length; i++) {
         if ($scope.epg[i].epg_channel_id == $rootScope.currentSideBarFocusedChannel.epg_channel_id) {
           for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
-            var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
-            var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
+            var startTime = new Date($scope.epg[i].programmes[j].start);
+            var endTime = new Date($scope.epg[i].programmes[j].stop);
             if (startTime < currentDate && currentDate < endTime) {
               $rootScope.currentSideBarEpg = $scope.epg[i].programmes[j];
               $rootScope.currentSideBarEpg.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
@@ -181,10 +182,8 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
         $rootScope.currentEpgProgrammeIndex++;
         var currentDate = new Date();
         var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-        var startTime = timeDateService.createSafariDate(epgProgramme.start);
-        var endTime = timeDateService.createSafariDate(epgProgramme.stop);
-        var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
-        var endTimeWithOffset = new Date(endTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
+        var startTime = new Date(epgProgramme.start);
+        var endTime = new Date(epgProgramme.stop);
 
         $rootScope.currentEpg = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
         $rootScope.currentEpg.hasReminder = false;
@@ -218,11 +217,8 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
           $rootScope.disableRightArrow = false;
         var currentDate = new Date();
         var epgProgramme = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
-        var startTime = timeDateService.createSafariDate(epgProgramme.start);
-        var endTime = timeDateService.createSafariDate(epgProgramme.stop);
-
-        var startTimeWithOffset = new Date(startTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
-        var endTimeWithOffset = new Date(endTime.getTime() - currentDate.getTimezoneOffset() * 60 * 1000);
+        var startTime = new Date(epgProgramme.start);
+        var endTime = new Date(epgProgramme.stop);
 
         $rootScope.currentEpg = $scope.epg[$rootScope.currentEpgChannelIndex].programmes[$rootScope.currentEpgProgrammeIndex];
 
@@ -287,8 +283,9 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
       $scope.epg[i].currentEPGProgramme.focusedEpgChannelItemStartEndTime = "";
       
       for (var j = 0; j < $scope.epg[i].programmes.length; j++) {
-        var startTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].start);
-        var endTime = timeDateService.createSafariDate($scope.epg[i].programmes[j].stop);
+        var startTime = new Date($scope.epg[i].programmes[j].start);
+        var endTime = new Date($scope.epg[i].programmes[j].stop);
+        
         if (startTime < currentDate && currentDate < endTime) {
           $scope.epg[i].currentEPGProgramme = $scope.epg[i].programmes[j];
           $scope.epg[i].currentEPGProgramme.focusedEpgChannelItemStartEndTime = timeDateService.formatDateToHHMM(startTime, true) + " - " + timeDateService.formatDateToHHMM(endTime, true);
@@ -298,11 +295,18 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
     }
   };
   $scope.prePareEpgData = function() {
+    var nowTimestamp = new Date();
+    var offsetValue = nowTimestamp.getTimezoneOffset() * 60;
     var epgData = [];
     for (var i = 0; i < $scope.epgRawData.length; i++) {
       var epgProgrammes = [];
       if ($scope.epgRawData[i].hasOwnProperty("programmes") && $scope.epgRawData[i].programmes) {
+       
         for (var j = 0; j < $scope.epgRawData[i].programmes.length; j++) {
+          $scope.epgRawData[i].programmes[j].start = timeDateService.getFormatedMonthddyyyy(new Date($scope.epgRawData[i].programmes[j].start_timestamp*1000))
+          $scope.epgRawData[i].programmes[j].start_timestamp = new Date($scope.epgRawData[i].programmes[j].start_timestamp*1000)
+          $scope.epgRawData[i].programmes[j].stop = timeDateService.getFormatedMonthddyyyy(new Date($scope.epgRawData[i].programmes[j].stop_timestamp*1000))
+          $scope.epgRawData[i].programmes[j].stop_timestamp = new Date($scope.epgRawData[i].programmes[j].stop_timestamp*1000)
           epgProgrammes.push($scope.epgRawData[i].programmes[j]);
           //$scope.epgRawData[i].programmes[j].hasReminder = $scope.checkIfReminderIsAdded($scope.epgRawData[i].programmes[j].string_id)
         }
@@ -310,25 +314,12 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
       epgData.push($scope.epgRawData[i]);
       epgData[i].programmes = epgProgrammes;
     }
-    
     $scope.epg = epgData;
     $scope.epgPagedData = $scope.epg.slice(0,$scope.epgPageSize)
     $scope.epgTotalPages = parseInt(Math.ceil($scope.epg / $scope.epgPageSize))
 
     $rootScope.updateCurrentEpgProgrammes()
-  };
-  
-  $scope.getWidthFromDuration = function(start, stop) {
-
-    var startDate = new Date(start * 1000);
-    var stopDate = new Date(stop * 1000);
-
-    var diffMs = Math.abs(stopDate - startDate);
-    var diffMins = Math.floor((diffMs / 1000) / 60); // minutes
-
-    return parseFloat(diffMins * $scope.pixelSizeInMinutes).toFixed(2);
-  };
-  
+  };  
 
   $scope.isElementVisible = function(elem, container, move) {
     var docViewTop = container.offset().top;
@@ -363,7 +354,7 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
     $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex).focus();
     var focusedEpgItem = $("#epgItem-" + $scope.channelRow + "-" + $scope.channelRowItemIndex);
     focusedEpgItem.addClass("focusedEpg");
-    var startTime = timeDateService.createSafariDate(focusedEpgItem.data("epgitemstart"));
+    var startTime = new Date(focusedEpgItem.data("epgitemstart"));
 
     if(startTime<new Date()){
       $rootScope.addReminderBtn = false;
@@ -407,9 +398,9 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
       var currentDate = new Date();
       for (var j = 0; j < $scope.epg[$scope.channelRow].programmes.length; j++) {
         var start = new Date($scope.epg[$scope.channelRow].programmes[j].start_timestamp * 1000);
-        start = start.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
+        //start = start.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
         var stop = new Date($scope.epg[$scope.channelRow].programmes[j].stop_timestamp * 1000);
-        stop = stop.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
+        //stop = stop.getTime() + currentDate.getTimezoneOffset() * 60 * 1000;
         if (start > currentDate.getTime() && currentDate.getTime() < stop) {
           $scope.channelRowItemIndex = j;
           return false;
@@ -421,10 +412,15 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
   $scope.prepareTodayEpgList = function (epgProgrammeList) {
     var nowTimestamp = new Date();
     var offsetValue = nowTimestamp.getTimezoneOffset() * 60;
-    nowTimestamp = parseInt(nowTimestamp.getTime()/1000) - offsetValue;
-
     var programmeList = []
+
     for (var i = 0; i < epgProgrammeList.length; i++) {
+
+        epgProgrammeList[i].start = timeDateService.getFormatedMonthddyyyy(new Date(epgProgrammeList[i].start_timestamp*1000))
+        epgProgrammeList[i].start_timestamp = new Date(epgProgrammeList[i].start_timestamp*1000)
+        epgProgrammeList[i].stop = timeDateService.getFormatedMonthddyyyy(new Date(epgProgrammeList[i].stop_timestamp*1000))
+        epgProgrammeList[i].stop_timestamp = new Date(epgProgrammeList[i].stop_timestamp*1000)
+
         epgProgrammeList[i].startEndTimeString = ""
         epgProgrammeList[i].hasReminder = false;
         if($scope.checkIfReminderIsAdded(epgProgrammeList[i].string_id))
@@ -451,7 +447,7 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
 
     startTimestamp = parseInt(startTimestamp.getTime()/1000)
     endTimestamp = parseInt(endTimestamp.getTime()/1000)
-    nowTimestamp = parseInt(nowTimestamp.getTime()/1000) - offsetValue
+    nowTimestamp = parseInt(nowTimestamp.getTime()/1000)
 
     var programmeList = []
     for (var i = 0; i < epgProgrammeList.length; i++) {
@@ -480,8 +476,8 @@ scoutTVApp.controller("epgCtrl", ['$scope', '$rootScope', '$timeout', '$interval
     if(programmeList && programmeList.length){
       var currentDate = new Date();
       for (var i = 0; i < programmeList.length; i++) {
-        var startTime = timeDateService.createSafariDate(programmeList[i].start);
-        var endTime = timeDateService.createSafariDate(programmeList[i].stop);
+        var startTime = new Date(programmeList[i].start);
+        var endTime = new Date(programmeList[i].stop);
         if (startTime < currentDate && currentDate < endTime) {
           activeIndex = i;
          

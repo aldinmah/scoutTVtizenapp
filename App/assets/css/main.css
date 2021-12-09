@@ -1369,6 +1369,9 @@ body.dark .fullScreenTemplateView .epgListBox .epgChannelTitleListWrapper .epgCu
     border-radius: 10px;
     display: flex;
 }
+.fullScreenTemplateView .epgListBox .epgListChannelItem{
+    background-color: #dcdcdc;
+}
 body.dark .settingsTemplateWrapper .settingsListItem,
 body.dark .fullScreenTemplateView .epgListBox .epgListChannelItem{
     background-color: #2b2b2b;
