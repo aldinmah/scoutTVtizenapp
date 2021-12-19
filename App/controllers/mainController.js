@@ -1,4 +1,4 @@
-scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeout', 'focusController', 'configService', 'timeDateService', 'routingService', function ($scope, $rootScope, $interval, $timeout, focusController, configService, timeDateService, routingService) {
+scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeout', 'focusController', 'configService', 'timeDateService', 'routingService', 'httpService', function ($scope, $rootScope, $interval, $timeout, focusController, configService, timeDateService, routingService, httpService) {
 
     $rootScope.currentTime = '';
     $scope.menuItems = [
@@ -31,6 +31,7 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
     $rootScope.highlightedItems = [];
 
     $scope.clockInitialized = false;
+    $scope.epgRefreshInitialized = false;
     $scope.lastBottomScrollValue = 0;
 
     $scope.$on('highlightedLoaded', function (event, args) {
@@ -61,7 +62,14 @@ scoutTVApp.controller("mainCtrl", ['$scope', '$rootScope', '$interval', '$timeou
         $rootScope.currentTime = timeDateService.getCurrentTimeFormatedHHMM();
     };
 
+    $scope.refreshEpgData = function () {
+        if (!$scope.epgRefreshInitialized)
+            $scope.epgRefreshInitialized = $interval($scope.refreshEpgData, 600000);
+        httpService.getEpg();
+    };
+
     $rootScope.$on("refreshCurrentTime", $scope.refreshCurrentTime);
+    $rootScope.$on("refreshEpgData", $scope.refreshEpgData);
 
     $scope.isScrolledIntoView = function (elem, container, move, customHeader,moveValue) {
         var docViewTop = container.offset().top;

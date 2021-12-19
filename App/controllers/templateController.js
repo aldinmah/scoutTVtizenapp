@@ -505,6 +505,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         $rootScope.activeTemplate = 'Home';
         $rootScope.showLoader = false;
         $rootScope.$broadcast('refreshCurrentTime');
+        $rootScope.$broadcast('refreshEpgData');
         $rootScope.hidePlayerTemplate();
         if($rootScope.favoriteChannelsExist){
             $rootScope.loadFavoriteChannelsView = true;
