@@ -181,6 +181,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
 
     $scope.beforeEventBound = false
     $rootScope.$on('keydownEvent', function (item, event) {
+        
         /*Help bar control*/
         var activeItem = $(focusController.getCurrentFocusItem());
         if(activeItem.data("channelitem")){
@@ -202,6 +203,13 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
 
         var dataFocusableGroup = focusController.getCurrentGroup()
         var dataFocusableDepth = focusController.getCurrentDepth()
+
+        //check if Info button or TTX/MIX button is pressed, open epgGuid
+        if(event.keyCode == 457 || event.keyCode == 10200){
+            $scope.hideAllTemplates();
+            $scope.openEpgTemplate(false);
+            return false;
+        }
 
         //console.log(activeItem.html())
         //console.log(dataFocusableDepth);
@@ -625,6 +633,7 @@ scoutTVApp.controller("templateCtrl", ['$scope', '$rootScope', '$timeout', 'focu
         if (!skipRouteStack)
             routingService.addRouteToStack("openEpgTemplate");
         
+        $rootScope.showMainTemplate = true;
         $rootScope.showEpgTemplate = true;
         $rootScope.showEpgTemplateTodayBox = true;
         $rootScope.activeTemplate = 'EPG';

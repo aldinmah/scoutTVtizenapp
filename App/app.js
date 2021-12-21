@@ -17,5 +17,6 @@ scoutTVApp.run(function (keyListenerService) {
     tizen.tvinputdevice.registerKey('MediaPlay');//code 415
     tizen.tvinputdevice.registerKey('MediaPause');//code 19
     tizen.tvinputdevice.registerKey('MediaStop');//code 19
-
+    tizen.tvinputdevice.registerKey('Teletext');//code 19
+    tizen.tvinputdevice.registerKey('Info');
 });
